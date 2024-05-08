@@ -53,6 +53,12 @@ ampy --port /dev/ttyUSB0  put controller.py /main.py
 ```
 Reboot and navigate to the board's IP address from a web browser. You should also see the Zones auto populate in your home assistant instance if applicable.
 
+Enclosure:
+-
+Main Box: https://a360.co/3JPQwDQ
+Tablet Tray: https://a360.co/3wzbLN
+Tablet Cover: https://a360.co/4asd20F
+
 Assembly:
 -
 <p float="left">
