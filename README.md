@@ -17,7 +17,8 @@ Installation:
 -
 FOR LINUX:
 --
-First install the micropython environment on your ESP32. Here's the official documentation: https://docs.micropython.org/en/latest/esp32/tutorial/intro.html
+First install the micropython environment on your ESP32. Here's the official documentation: https://docs.micropython.org/en/latest/esp32/tutorial/intro.html 
+
 For the condensed version:
 - Download micropython here: https://micropython.org/resources/firmware/ESP32_GENERIC-20240222-v1.22.2.bin
 - Run the following command in the ubuntu terminal: pip install esptool
