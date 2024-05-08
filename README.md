@@ -36,7 +36,7 @@ pip install esptool
 - From the folder where the micropython file is located, run the following commands:
 ```
 esptool.py --chip esp32 --port /dev/ttyUSB0 erase_flash
-esptool.py --chip ^Cp32 --port /dev/ttyUSB0 --baud 460800 write_flash -z 0x1000 ESP32_GENERIC-20240222-v1.22.2.bin
+esptool.py --chip esp32 --port /dev/ttyUSB0 --baud 460800 write_flash -z 0x1000 ESP32_GENERIC-20240222-v1.22.2.bin
 ```
 Once micropython has been successfully installed on the board, download the files in the repository navigate to it's folder.
 
