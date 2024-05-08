@@ -56,7 +56,7 @@ Reboot and navigate to the board's IP address from a web browser. You should als
 Assembly:
 -
 <p float="left">
-  <img src="attachments/assembly_1.jpg" width="200"> 
-  <img src="attachments/assembly_2.jpg" width="200">
+  <img src="attachments/assembly_1.jpg" width="500"> 
+  <img src="attachments/assembly_2.jpg" width="500">
 
 </p>
