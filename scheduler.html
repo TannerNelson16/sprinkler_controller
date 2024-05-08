@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scheduler</title>
+<style>
+body {
+  background-color: #333;
+  color: white;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+h1 {
+  color: #FFD700;
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  margin: 10px;
+}
+label {
+  font-weight: bold;
+  margin-right: 10px;
+}
+input[type="checkbox"], input[type="time"] {
+  margin: 5px;
+}
+button {
+  background-color: #2196F3;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 12px;
+}
+.relay-scheduler {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #FFF;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+label {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input[type="checkbox"], input[type="time"] {
+  margin: 5px;
+  margin-right: 3px;
+}
+
+/* Style adjustments to force new line */
+label.break-line {
+  flex-basis: 100%; /* Forces the label to take full width */
+  margin-top: 10px; /* Add some spacing before the element */
+}
+
+.time-label {
+  flex-basis: 100%; /* Forces the label to take full width */
+}
+
+@media (max-width: 600px) {
+  label {
+    width: auto; /* Ensure labels fit content on small screens */
+  }
+  
+  input[type="time"] {
+    width: 100%; /* Full width for better accessibility */
+  }
+  
+  button {
+    width: 100%;
+    padding: 12px;
+  }
+}
+</style>
+</head>
+<body onload="initDateTime()">
+<h1>Scheduler</h1>
+<div id="currentDateTime">Loading date and time...</div>
+<div>
+
+  <div class="relay-scheduler">
+    <h2>Zone 1</h2>
+    <form id="form1">
+      Days:
+      <input type="checkbox" name="day" value="Mon">Mon
+      <input type="checkbox" name="day" value="Tue">Tue
+      <input type="checkbox" name="day" value="Wed">Wed
+      <input type="checkbox" name="day" value="Thu">Thu
+      <input type="checkbox" name="day" value="Fri">Fri
+      <input type="checkbox" name="day" value="Sat">Sat
+      <input type="checkbox" name="day" value="Sun">Sun<br>
+      Turn On Time: <input type="time" name="onTime">
+      Turn Off Time: <input type="time" name="offTime"><br>
+      <button type="button" onclick="setSchedule(0, document.getElementById('form1'))">Set Schedule</button>
+    </form>
+    <div id="currentSchedule1">
+        <strong>Current Schedule:</strong> <span id="currentInfo1"></span>
+    </div>
+  </div>
+  <div class="relay-scheduler">
+    <h2>Zone 2</h2>
+    <form id="form2">
+      Days:
+      <input type="checkbox" name="day" value="Mon">Mon
+      <input type="checkbox" name="day" value="Tue">Tue
+      <input type="checkbox" name="day" value="Wed">Wed
+      <input type="checkbox" name="day" value="Thu">Thu
+      <input type="checkbox" name="day" value="Fri">Fri
+      <input type="checkbox" name="day" value="Sat">Sat
+      <input type="checkbox" name="day" value="Sun">Sun<br>
+      Turn On Time: <input type="time" name="onTime">
+      Turn Off Time: <input type="time" name="offTime"><br>
+      <button type="button" onclick="setSchedule(1, document.getElementById('form2'))">Set Schedule</button>
+    </form>
+    <div id="currentSchedule2">
+        <strong>Current Schedule:</strong> <span id="currentInfo2"></span>
+    </div>
+  </div>
+  <div class="relay-scheduler">
+    <h2>Zone 3</h2>
+    <form id="form3">
+      Days:
+      <input type="checkbox" name="day" value="Mon">Mon
+      <input type="checkbox" name="day" value="Tue">Tue
+      <input type="checkbox" name="day" value="Wed">Wed
+      <input type="checkbox" name="day" value="Thu">Thu
+      <input type="checkbox" name="day" value="Fri">Fri
+      <input type="checkbox" name="day" value="Sat">Sat
+      <input type="checkbox" name="day" value="Sun">Sun<br>
+      Turn On Time: <input type="time" name="onTime">
+      Turn Off Time: <input type="time" name="offTime"><br>
+      <button type="button" onclick="setSchedule(3, document.getElementById('form3'))">Set Schedule</button>
+    </form>
+    <div id="currentSchedule3">
+        <strong>Current Schedule:</strong> <span id="currentInfo3"></span>
+    </div>
+  </div>
+  <div class="relay-scheduler">
+    <h2>Zone 4</h2>
+    <form id="form4">
+      Days:
+      <input type="checkbox" name="day" value="Mon">Mon
+      <input type="checkbox" name="day" value="Tue">Tue
+      <input type="checkbox" name="day" value="Wed">Wed
+      <input type="checkbox" name="day" value="Thu">Thu
+      <input type="checkbox" name="day" value="Fri">Fri
+      <input type="checkbox" name="day" value="Sat">Sat
+      <input type="checkbox" name="day" value="Sun">Sun<br>
+      Turn On Time: <input type="time" name="onTime">
+      Turn Off Time: <input type="time" name="offTime"><br>
+      <button type="button" onclick="setSchedule(3, document.getElementById('form4'))">Set Schedule</button>
+    </form>
+    <div id="currentSchedule4">
+        <strong>Current Schedule:</strong> <span id="currentInfo4"></span>
+    </div>
+  </div>
+  <div class="relay-scheduler">
+    <h2>Zone 5</h2>
+    <form id="form5">
+      Days:
+      <input type="checkbox" name="day" value="Mon">Mon
+      <input type="checkbox" name="day" value="Tue">Tue
+      <input type="checkbox" name="day" value="Wed">Wed
+      <input type="checkbox" name="day" value="Thu">Thu
+      <input type="checkbox" name="day" value="Fri">Fri
+      <input type="checkbox" name="day" value="Sat">Sat
+      <input type="checkbox" name="day" value="Sun">Sun<br>
+      Turn On Time: <input type="time" name="onTime">
+      Turn Off Time: <input type="time" name="offTime"><br>
+      <button type="button" onclick="setSchedule(4, document.getElementById('form5'))">Set Schedule</button>
+    </form>
+    <div id="currentSchedule5">
+        <strong>Current Schedule:</strong> <span id="currentInfo5"></span>
+    </div>
+  </div>
+  <div class="relay-scheduler">
+    <h2>Zone 6</h2>
+    <form id="form6">
+      Days:
+      <input type="checkbox" name="day" value="Mon">Mon
+      <input type="checkbox" name="day" value="Tue">Tue
+      <input type="checkbox" name="day" value="Wed">Wed
+      <input type="checkbox" name="day" value="Thu">Thu
+      <input type="checkbox" name="day" value="Fri">Fri
+      <input type="checkbox" name="day" value="Sat">Sat
+      <input type="checkbox" name="day" value="Sun">Sun<br>
+      Turn On Time: <input type="time" name="onTime">
+      Turn Off Time: <input type="time" name="offTime"><br>
+      <button type="button" onclick="setSchedule(5, document.getElementById('form6'))">Set Schedule</button>
+    </form>
+    <div id="currentSchedule6">
+        <strong>Current Schedule:</strong> <span id="currentInfo6"></span>
+    </div>
+  </div>
+  <div class="relay-scheduler">
+    <h2>Zone 7</h2>
+    <form id="form7">
+      Days:
+      <input type="checkbox" name="day" value="Mon">Mon
+      <input type="checkbox" name="day" value="Tue">Tue
+      <input type="checkbox" name="day" value="Wed">Wed
+      <input type="checkbox" name="day" value="Thu">Thu
+      <input type="checkbox" name="day" value="Fri">Fri
+      <input type="checkbox" name="day" value="Sat">Sat
+      <input type="checkbox" name="day" value="Sun">Sun<br>
+      Turn On Time: <input type="time" name="onTime">
+      Turn Off Time: <input type="time" name="offTime"><br>
+      <button type="button" onclick="setSchedule(6, document.getElementById('form7'))">Set Schedule</button>
+    </form>
+    <div id="currentSchedule7">
+        <strong>Current Schedule:</strong> <span id="currentInfo7"></span>
+    </div>
+  </div>
+  <div class="relay-scheduler">
+    <h2>Zone 8</h2>
+    <form id="form8">
+      Days:
+      <input type="checkbox" name="day" value="Mon">Mon
+      <input type="checkbox" name="day" value="Tue">Tue
+      <input type="checkbox" name="day" value="Wed">Wed
+      <input type="checkbox" name="day" value="Thu">Thu
+      <input type="checkbox" name="day" value="Fri">Fri
+      <input type="checkbox" name="day" value="Sat">Sat
+      <input type="checkbox" name="day" value="Sun">Sun<br>
+      Turn On Time: <input type="time" name="onTime">
+      Turn Off Time: <input type="time" name="offTime"><br>
+      <button type="button" onclick="setSchedule(7, document.getElementById('form8'))">Set Schedule</button>
+    </form>
+    <div id="currentSchedule8">
+        <strong>Current Schedule:</strong> <span id="currentInfo8"></span>
+    </div>
+  </div>
+  <div class="relay-scheduler">
+    <h2>Zone 9</h2>
+    <form id="form9">
+      Days:
+      <input type="checkbox" name="day" value="Mon">Mon
+      <input type="checkbox" name="day" value="Tue">Tue
+      <input type="checkbox" name="day" value="Wed">Wed
+      <input type="checkbox" name="day" value="Thu">Thu
+      <input type="checkbox" name="day" value="Fri">Fri
+      <input type="checkbox" name="day" value="Sat">Sat
+      <input type="checkbox" name="day" value="Sun">Sun<br>
+      Turn On Time: <input type="time" name="onTime">
+      Turn Off Time: <input type="time" name="offTime"><br>
+      <button type="button" onclick="setSchedule(8, document.getElementById('form9'))">Set Schedule</button>
+    </form>
+    <div id="currentSchedule9">
+        <strong>Current Schedule:</strong> <span id="currentInfo9"></span>
+    </div>
+  </div>
+  <div class="relay-scheduler">
+    <h2>Zone 10</h2>
+    <form id="form10">
+      Days:
+      <input type="checkbox" name="day" value="Mon">Mon
+      <input type="checkbox" name="day" value="Tue">Tue
+      <input type="checkbox" name="day" value="Wed">Wed
+      <input type="checkbox" name="day" value="Thu">Thu
+      <input type="checkbox" name="day" value="Fri">Fri
+      <input type="checkbox" name="day" value="Sat">Sat
+      <input type="checkbox" name="day" value="Sun">Sun<br>
+      Turn On Time: <input type="time" name="onTime">
+      Turn Off Time: <input type="time" name="offTime"><br>
+      <button type="button" onclick="setSchedule(9, document.getElementById('form10'))">Set Schedule</button>
+    </form>
+    <div id="currentSchedule10">
+        <strong>Current Schedule:</strong> <span id="currentInfo10"></span>
+    </div>
+  </div>
+</div>
+
+
+<script>
+function initDateTime() {
+    setInterval(() => {
+        document.getElementById('currentDateTime').innerHTML = new Date().toLocaleString();
+    }, 1000);
+}
+
+function setSchedule(pin, form) {
+    const data = new URLSearchParams(new FormData(form)).toString();
+    fetch(`/set-schedule/${pin}`, {
+        method: 'POST',
+        body: data,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    })
+    .then(response => response.text())
+    .then(data => {
+        alert(data);
+        updateScheduleDisplay(pin, form);
+    });
+}
+function formatTime24To12(time24) {
+    if (!time24) return "Not set";  // Handle unset times
+    const [hours, minutes] = time24.split(':');
+    const hours12 = ((hours % 12) || 12);  // Convert hour component
+    const amPm = hours >= 12 ? 'PM' : 'AM';
+    return `${hours12}:${minutes} ${amPm}`;
+}
+function updateScheduleDisplay(pin, form) {
+    const formData = new FormData(form);
+    const daysArray = formData.getAll('day'); // Get all selected days
+    const days = daysArray.join(", ");
+    const onTime = formData.get('onTime');
+    const offTime = formData.get('offTime');
+
+    const scheduleInfo = `Days: ${days}, On: ${formatTime24To12(onTime)}, Off: ${formatTime24To12(offTime)}`;
+    document.getElementById('currentInfo' + pin).innerText = scheduleInfo;
+}
+function fetchSchedules() {
+    fetch('/get-schedules')
+    .then(response => response.json())
+    .then(data => {
+        console.log("Schedule data:", data);  // Check what data is received
+        data.forEach((schedule, index) => {
+            const relayIndex = index + 1; // Adjust index for 1-based ID in HTML
+            console.log(`Relay ${relayIndex} schedule:`, schedule);  // Debug each schedule
+            const days = schedule.days ? schedule.days.join(", ") : "No days set";
+            const onTime = formatTime24To12(schedule.onTime) || "Not set";
+            const offTime = formatTime24To12(schedule.offTime) || "Not set";            
+            const scheduleInfo = `Days: ${days}, On: ${onTime}, Off: ${offTime}`;
+            
+            // Update the current schedule display
+            const infoElement = document.getElementById('currentInfo' + relayIndex);
+            console.log(`Updating element:`, infoElement);  // Check if element is found
+            infoElement.innerText = scheduleInfo;
+        });
+    })
+    .catch(error => {
+        console.error("Error fetching schedules:", error);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', fetchSchedules);
+</script>
+</body>
+</html>

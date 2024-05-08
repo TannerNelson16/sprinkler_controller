@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intellidwell Sprinkler Controller</title>
+<style>
+body {
+  background-color: #333;
+  color: white;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+h1 {
+  color: #FFD700;
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;  /* Retain original fixed width */
+  height: 34px;
+  margin: 10px;
+  vertical-align: middle; /* Ensure vertical alignment with text */
+}
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+input:checked + .slider {
+  background-color: #2196F3;
+}
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+button {
+  background-color: #2196F3;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 12px;
+}
+@media (max-width: 600px) {
+  body {
+    padding: 5px;
+  }
+  .switch {
+    margin: 5px 0; /* Adjust margins for mobile */
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+  }
+}
+</style>
+</head>
+<body>
+<h1>Intellidwell Sprinkler Controller</h1>
+<div>
+
+  <label class="switch">
+    <input type="checkbox" onchange="toggleRelay(this, 0)" data-index="0"">
+    <span class="slider"></span>
+  </label> Zone 1<br>
+  <label class="switch">
+    <input type="checkbox" onchange="toggleRelay(this, 1)" data-index="1">
+    <span class="slider"></span>
+  </label> Zone 2<br>
+  <label class="switch">
+    <input type="checkbox" onchange="toggleRelay(this, 2)" data-index="2">
+    <span class="slider"></span>
+  </label> Zone 3<br>
+  <label class="switch">
+    <input type="checkbox" onchange="toggleRelay(this, 3)" data-index="3">
+    <span class="slider"></span>
+  </label> Zone 4<br>
+  <label class="switch">
+    <input type="checkbox" onchange="toggleRelay(this, 4)" data-index="4">
+    <span class="slider"></span>
+  </label> Zone 5<br>
+  <label class="switch">
+    <input type="checkbox" onchange="toggleRelay(this, 5)" data-index="5">
+    <span class="slider"></span>
+  </label> Zone 6<br>
+  <label class="switch">
+    <input type="checkbox" onchange="toggleRelay(this, 6)" data-index="6">
+    <span class="slider"></span>
+  </label> Zone 7<br>
+  <label class="switch">
+    <input type="checkbox" onchange="toggleRelay(this, 7)" data-index="7">
+    <span class="slider"></span>
+  </label> Zone 8<br>
+  <label class="switch">
+    <input type="checkbox" onchange="toggleRelay(this, 8)" data-index="8">
+    <span class="slider"></span>
+  </label> Zone 9<br>
+  <label class="switch">
+    <input type="checkbox" onchange="toggleRelay(this, 9)" data-index="9">
+    <span class="slider"></span>
+  </label> Zone 10<br>
+</div>
+<button type="button" onclick="window.location.href='/scheduler'">Scheduler</button>
+<script>
+
+function updateSwitches() {
+    fetch('/get-relay-states')
+    .then(response => response.json())
+    .then(states => {
+        states.forEach((state, index) => {
+            const switchElement = document.querySelector(`input[type="checkbox"][data-index="${index}"]`);
+            if (switchElement) {
+                const currentState = (state === 1);
+                if (switchElement.checked !== currentState) {
+                    switchElement.checked = currentState;
+                }
+            }
+        });
+    })
+    .catch(error => console.error('Error fetching relay states:', error));
+}
+
+// Call updateSwitches every 500 milliseconds
+setInterval(updateSwitches, 2000);
+
+function toggleRelay(element, pin) {
+    const state = element.checked ? 'on' : 'off';
+    fetch(`/relay/${pin}/${state}`)
+    .then(response => response.text())
+    .then(data => console.log(data));
+}
+</script>
+</body>
+</html>
+
+
