@@ -1,3 +1,5 @@
+Introduction:
+-
 Smart irrigation controllers are overpriced and lack customizability so I set out to develop a simple and easy to use solution that is also robust and reliable.
 
 Components used:
@@ -10,8 +12,13 @@ Components used:
 
 Web UI:
 -
-![Image Description](attachments/sprinkler_controller_main.png)
-![Image Description](attachments/sprinkler_controller_scheduler.png)
+<p float="left">
+  <img src="attachments/sprinkler_controller_main.png" width="400"> 
+  <img src="attachments/sprinkler_controller_scheduler.png" width="400">
+
+</p>
+
+
 
 Installation:
 -
