@@ -56,7 +56,9 @@ Reboot and navigate to the board's IP address from a web browser. You should als
 Enclosure:
 -
 Main Box: https://a360.co/3JPQwDQ
+
 Tablet Tray: https://a360.co/3wzbLN
+
 Tablet Cover: https://a360.co/4asd20F
 
 Assembly:
