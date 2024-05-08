@@ -9,6 +9,7 @@ Components used:
 - Step Down Buck converter - https://www.amazon.com/gp/product/B08B3T9DX4/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1
 - Amazon Fire HD 8" Tablet - https://www.amazon.com/gp/product/B07952VWF2/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1 
 - 3d printed container
+- 24v transformer
 
 Web UI:
 -
@@ -51,3 +52,11 @@ ampy --port /dev/ttyUSB0  put microdot_asyncio.py
 ampy --port /dev/ttyUSB0  put controller.py /main.py
 ```
 Reboot and navigate to the board's IP address from a web browser. You should also see the Zones auto populate in your home assistant instance if applicable.
+
+Assembly:
+-
+<p float="left">
+  <img src="attachments/assembly_1.jpg" width="200"> 
+  <img src="attachments/assembly_2.jpg" width="200">
+
+</p>
