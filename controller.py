@@ -98,6 +98,18 @@ def set_schedule(request, pin):
         ujson.dump(schedules, f)
     return f'Schedule set for Relay {pin + 1}!'
 
+@app.route('/toggle-schedule/<pin>/<status>', methods=['GET'])
+def toggle_schedule(request, pin, status):
+    pin = int(pin)
+    status = status.lower() == 'true'
+    if 0 <= pin < len(schedules):
+        # Set default if 'enabled' key does not exist
+        schedules[pin]['enabled'] = status
+        with open('schedules.json', 'w') as f:
+            ujson.dump(schedules, f)
+        return f"Schedule for Relay {pin+1} {'enabled' if status else 'disabled'}!"
+    return 'Invalid pin or status', 400
+
 @app.route('/get-schedules')
 def get_schedules(request):
     return ujson.dumps(schedules), {'Content-Type': 'application/json'}
@@ -114,45 +126,22 @@ except (OSError, ValueError):
 def check_schedules():
     while True:
         now = time.localtime()
-        day = now[6]  # Day of the week, 0-6, Monday is 0
-        current_time = f"{now[3]:02}:{now[4]:02}"  # Current time in HH:MM format
-       # print(f"Checking schedules at {current_time}...")  # Debug output
-       # print(day)
+        current_time = f"{now[3]:02}:{now[4]:02}"
+        current_day = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][now[6]]
         
-        if day == 0:
-            current_day = "Mon"
-        elif day == 1:
-            current_day = "Tue"
-        elif day == 2:
-            current_day = "Wed"
-        elif day == 3:
-            current_day = "Thu"
-        elif day == 4:
-            current_day = "Fri"
-        elif day == 5:
-            current_day = "Sat"
-        elif day == 6:
-            current_day = "Sun"
-            
         for pin, schedule in enumerate(schedules):
-            days = schedule.get('days', [])
-            on_time = schedule.get('onTime')
-            off_time = schedule.get('offTime')
-#            print(f"Relay {pin+1}: Days: {days}, On: {on_time}, Off: {off_time}")  # More debug output
-
-            if str(current_day) in days:
-                if current_time == on_time:
+            if schedule.get('enabled', False):  # Assume False as default if not specified
+                if current_day in schedule.get('days', []) and schedule.get('onTime') == current_time:
                     relays[pin].value(0)
                     if MQTT == 1:
                         publish_relay_status(client, pin, relays[pin].value())
                     print(f"Relay {pin+1} turned on at {current_time}")
-                elif current_time == off_time:
+                elif schedule.get('offTime') == current_time:
                     relays[pin].value(1)
                     if MQTT == 1:
                         publish_relay_status(client, pin, relays[pin].value())
                     print(f"Relay {pin+1} turned off at {current_time}")
-
-        time.sleep(15)  # Check every minute
+        time.sleep(15) 
 
 # Setup MQTT client
 

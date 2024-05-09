@@ -19,6 +19,34 @@ h1 {
   width: 60px;
   height: 34px;
   margin: 10px;
+ } 
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+input:checked + .slider {
+  background-color: #2196F3;
+}
+input:checked + .slider:before {
+  transform: translateX(26px);
 }
 label {
   font-weight: bold;
@@ -98,7 +126,11 @@ label.break-line {
 <div id="currentDateTime">Loading date and time...</div>
 <div>
 
-  <div class="relay-scheduler">
+  <div class="relay-scheduler" style="position: relative; padding-right: 70px;">
+    <label class="switch" style="position: absolute; right: 10px; top: 10px;">
+        <input type="checkbox" onchange="toggleSchedule(this, 0)" data-index="0" {{ 'checked' if schedules[0].enabled }}>
+        <span class="slider"></span>
+    </label>
     <h2>Zone 1</h2>
     <form id="form1">
       Days:
@@ -117,7 +149,11 @@ label.break-line {
         <strong>Current Schedule:</strong> <span id="currentInfo1"></span>
     </div>
   </div>
-  <div class="relay-scheduler">
+  <div class="relay-scheduler" style="position: relative; padding-right: 70px;">
+    <label class="switch" style="position: absolute; right: 10px; top: 10px;">
+        <input type="checkbox" onchange="toggleSchedule(this, 1)" data-index="1" {{ 'checked' if schedules[1].enabled }}>
+        <span class="slider"></span>
+    </label>
     <h2>Zone 2</h2>
     <form id="form2">
       Days:
@@ -136,7 +172,11 @@ label.break-line {
         <strong>Current Schedule:</strong> <span id="currentInfo2"></span>
     </div>
   </div>
-  <div class="relay-scheduler">
+  <div class="relay-scheduler" style="position: relative; padding-right: 70px;">
+    <label class="switch" style="position: absolute; right: 10px; top: 10px;">
+        <input type="checkbox" onchange="toggleSchedule(this, 2)" data-index="2" {{ 'checked' if schedules[2].enabled }}>
+        <span class="slider"></span>
+    </label>
     <h2>Zone 3</h2>
     <form id="form3">
       Days:
@@ -149,13 +189,17 @@ label.break-line {
       <input type="checkbox" name="day" value="Sun">Sun<br>
       Turn On Time: <input type="time" name="onTime">
       Turn Off Time: <input type="time" name="offTime"><br>
-      <button type="button" onclick="setSchedule(3, document.getElementById('form3'))">Set Schedule</button>
+      <button type="button" onclick="setSchedule(2, document.getElementById('form3'))">Set Schedule</button>
     </form>
     <div id="currentSchedule3">
         <strong>Current Schedule:</strong> <span id="currentInfo3"></span>
     </div>
   </div>
-  <div class="relay-scheduler">
+  <div class="relay-scheduler" style="position: relative; padding-right: 70px;">
+    <label class="switch" style="position: absolute; right: 10px; top: 10px;">
+        <input type="checkbox" onchange="toggleSchedule(this, 3)" data-index="3" {{ 'checked' if schedules[3].enabled }}>
+        <span class="slider"></span>
+    </label>
     <h2>Zone 4</h2>
     <form id="form4">
       Days:
@@ -174,7 +218,11 @@ label.break-line {
         <strong>Current Schedule:</strong> <span id="currentInfo4"></span>
     </div>
   </div>
-  <div class="relay-scheduler">
+  <div class="relay-scheduler" style="position: relative; padding-right: 70px;">
+    <label class="switch" style="position: absolute; right: 10px; top: 10px;">
+        <input type="checkbox" onchange="toggleSchedule(this, 4)" data-index="4" {{ 'checked' if schedules[4].enabled }}>
+        <span class="slider"></span>
+    </label>
     <h2>Zone 5</h2>
     <form id="form5">
       Days:
@@ -193,7 +241,11 @@ label.break-line {
         <strong>Current Schedule:</strong> <span id="currentInfo5"></span>
     </div>
   </div>
-  <div class="relay-scheduler">
+  <div class="relay-scheduler" style="position: relative; padding-right: 70px;">
+    <label class="switch" style="position: absolute; right: 10px; top: 10px;">
+        <input type="checkbox" onchange="toggleSchedule(this, 5)" data-index="5" {{ 'checked' if schedules[5].enabled }}>
+        <span class="slider"></span>
+    </label>
     <h2>Zone 6</h2>
     <form id="form6">
       Days:
@@ -212,7 +264,11 @@ label.break-line {
         <strong>Current Schedule:</strong> <span id="currentInfo6"></span>
     </div>
   </div>
-  <div class="relay-scheduler">
+  <div class="relay-scheduler" style="position: relative; padding-right: 70px;">
+    <label class="switch" style="position: absolute; right: 10px; top: 10px;">
+        <input type="checkbox" onchange="toggleSchedule(this, 6)" data-index="6" {{ 'checked' if schedules[6].enabled }}>
+        <span class="slider"></span>
+    </label>
     <h2>Zone 7</h2>
     <form id="form7">
       Days:
@@ -231,7 +287,11 @@ label.break-line {
         <strong>Current Schedule:</strong> <span id="currentInfo7"></span>
     </div>
   </div>
-  <div class="relay-scheduler">
+  <div class="relay-scheduler" style="position: relative; padding-right: 70px;">
+    <label class="switch" style="position: absolute; right: 10px; top: 10px;">
+        <input type="checkbox" onchange="toggleSchedule(this, 7)" data-index="7" {{ 'checked' if schedules[7].enabled }}>
+        <span class="slider"></span>
+    </label>
     <h2>Zone 8</h2>
     <form id="form8">
       Days:
@@ -250,7 +310,11 @@ label.break-line {
         <strong>Current Schedule:</strong> <span id="currentInfo8"></span>
     </div>
   </div>
-  <div class="relay-scheduler">
+  <div class="relay-scheduler" style="position: relative; padding-right: 70px;">
+    <label class="switch" style="position: absolute; right: 10px; top: 10px;">
+        <input type="checkbox" onchange="toggleSchedule(this, 8)" data-index="8" {{ 'checked' if schedules[8].enabled }}>
+        <span class="slider"></span>
+    </label>
     <h2>Zone 9</h2>
     <form id="form9">
       Days:
@@ -269,7 +333,11 @@ label.break-line {
         <strong>Current Schedule:</strong> <span id="currentInfo9"></span>
     </div>
   </div>
-  <div class="relay-scheduler">
+  <div class="relay-scheduler" style="position: relative; padding-right: 70px;">
+    <label class="switch" style="position: absolute; right: 10px; top: 10px;">
+        <input type="checkbox" onchange="toggleSchedule(this, 9)" data-index="9" {{ 'checked' if schedules[9].enabled }}>
+        <span class="slider"></span>
+    </label>
     <h2>Zone 10</h2>
     <form id="form10">
       Days:
@@ -328,7 +396,7 @@ function updateScheduleDisplay(pin, form) {
     const offTime = formData.get('offTime');
 
     const scheduleInfo = `Days: ${days}, On: ${formatTime24To12(onTime)}, Off: ${formatTime24To12(offTime)}`;
-    document.getElementById('currentInfo' + pin).innerText = scheduleInfo;
+    document.getElementById('currentInfo' + (pin+1)).innerText = scheduleInfo;
 }
 function fetchSchedules() {
     fetch('/get-schedules')
@@ -354,6 +422,28 @@ function fetchSchedules() {
     });
 }
 
+function toggleSchedule(element, zone) {
+    const isEnabled = element.checked;
+    fetch(`/toggle-schedule/${zone}/${isEnabled}`)
+    .then(response => response.text())
+    .then(data => {
+        console.log(data); // Log server response for debugging
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/get-schedules')
+    .then(response => response.json())
+    .then(schedules => {
+        schedules.forEach((schedule, index) => {
+            const toggle = document.querySelector(`input[data-index="${index}"][type='checkbox']`);
+            if (toggle) {
+                toggle.checked = schedule.enabled || false;  // Ensure false if undefined
+            }
+            updateScheduleDisplay(index); // Ensure UI is updated accordingly
+        });
+    });
+});
 document.addEventListener('DOMContentLoaded', fetchSchedules);
 </script>
 </body>
