@@ -40,7 +40,7 @@ esptool.py --chip esp32 --port /dev/ttyUSB0 --baud 460800 write_flash -z 0x1000 
 ```
 Once micropython has been successfully installed on the board, download the files in the repository navigate to it's folder.
 
-Open the controller.py file using vi, nano, or another editor of your choice and change the ssid, wifi password, mqtt broker ip address, mqtt username, and mqtt password. (If you don't want the MQTT Integration, let me know and I can modify the code to accomodate that)
+Open the controller.py file using vi, nano, or another editor of your choice and change the ssid, wifi password, mqtt broker ip address, mqtt username, and mqtt password. 
 
 Once this is complete, save the file and run the following commands:
 ```
@@ -52,6 +52,8 @@ ampy --port /dev/ttyUSB0  put microdot_asyncio.py
 ampy --port /dev/ttyUSB0  put controller.py /main.py
 ```
 Reboot and navigate to the board's IP address from a web browser. You should also see the Zones auto populate in your home assistant instance if applicable.
+
+NOTE: If the network is unavailable, the ESP32 will first try to connect without the MQTT integration. If the network is still causing errors, the ESP32 will generate an AP to allow for control of the sprinkler system. This can be accessed by connecting to the SSID: intellidwellSC and navigating to 192.168.4.1
 
 Enclosure:
 -
