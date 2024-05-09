@@ -183,7 +183,7 @@ def publish_discovery(client):
 def publish_relay_status(client, relay, status):
     
     topic = f"stat/zones/{relay}/state"
-    payload = "ON" if status else "OFF"
+    payload = "OFF" if status else "ON"
     client.publish(topic, payload)
     
 def command_callback(topic, msg):
