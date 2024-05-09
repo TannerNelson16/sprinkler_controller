@@ -15,6 +15,10 @@ PASSWORD = 'yourwifipassword'
 RELAY_PINS = [13, 5, 14, 27, 26, 25, 33, 32, 18, 19]  # Update your GPIO pin numbers here
 relays = [Pin(pin, Pin.OUT) for pin in RELAY_PINS]
 
+#Set Pins High (for inverse logic)
+for i in range(10):
+    relays[i].value(1)
+
 
 global MQTT
 MQTT=1
@@ -48,14 +52,14 @@ def toggle_relay(request, pin, state):
     pin = int(pin)
     if pin >= 0 and pin < len(relays):
         if state == 'on':
-            relays[pin].value(1)  # Set GPIO high
+            relays[pin].value(0)  #Inverse Logic
             print(f"Relay {pin+1} turned on manually.")
             if MQTT == 1:
                 publish_relay_status(client, pin, relays[pin].value())
             return 'Relay turned on!'
             
         elif state == 'off':
-            relays[pin].value(0)  # Set GPIO low
+            relays[pin].value(1)  #Inverse Logic
             print(f"Relay {pin+1} turned off manually.")
             if MQTT == 1:
                 publish_relay_status(client, pin, relays[pin].value())
@@ -138,12 +142,12 @@ def check_schedules():
 
             if str(current_day) in days:
                 if current_time == on_time:
-                    relays[pin].value(1)
+                    relays[pin].value(0)
                     if MQTT == 1:
                         publish_relay_status(client, pin, relays[pin].value())
                     print(f"Relay {pin+1} turned on at {current_time}")
                 elif current_time == off_time:
-                    relays[pin].value(0)
+                    relays[pin].value(1)
                     if MQTT == 1:
                         publish_relay_status(client, pin, relays[pin].value())
                     print(f"Relay {pin+1} turned off at {current_time}")
@@ -191,9 +195,9 @@ def command_callback(topic, msg):
     parts = topic.split('/')
     pin = int(parts[2])
     if msg == "ON":
-        relays[pin].value(1)
-    elif msg == "OFF":
         relays[pin].value(0)
+    elif msg == "OFF":
+        relays[pin].value(1)
     publish_relay_status(client, pin, relays[pin].value())
 
 client = MQTTClient(CLIENT_ID, MQTT_BROKER, user=MQTT_USER, password=MQTT_PASSWORD)
