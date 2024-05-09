@@ -13,34 +13,32 @@ from umqtt.simple import MQTTClient
 SSID = 'yourssid'
 PASSWORD = 'yourwifipassword'
 RELAY_PINS = [13, 5, 14, 27, 26, 25, 33, 32, 18, 19]  # Update your GPIO pin numbers here
+relays = [Pin(pin, Pin.OUT) for pin in RELAY_PINS]
 
+
+global MQTT
+MQTT=1
 MQTT_BROKER = "MQTT.BROKER.IP.ADDRESS"
 MQTT_USER = "MQTT_Username"
 MQTT_PASSWORD = "MQTT_Password"
 CLIENT_ID = "intellidwell_sprinkler_controller"
 TOPIC_BASE = "home/sprinkler_zones/"
-# Set up WiFi
-wifi = network.WLAN(network.STA_IF)
-wifi.active(True)
-wifi.connect(SSID, PASSWORD)
 
-while not wifi.isconnected():
-    pass
+    
+def connect_to_wifi():
+    ap = network.WLAN(network.AP_IF)
+    ap.active(False)
+    # Set up WiFi
+    wifi = network.WLAN(network.STA_IF)
+    wifi.active(True)
+    wifi.connect(SSID, PASSWORD)
+    
+    while not wifi.isconnected():
+        pass
 
-print('Connected to WiFi at', wifi.ifconfig()[0])
-
-# Set up relay pins
-relays = [Pin(pin, Pin.OUT) for pin in RELAY_PINS]
+    print('Connected to WiFi at', wifi.ifconfig()[0])
 
 
-# Load or create a schedule store
-try:
-    with open('schedules.json', 'r') as f:
-        schedules = ujson.load(f)
-except (OSError, ValueError):
-    schedules = [{} for _ in RELAY_PINS]
-    with open('schedules.json', 'w') as f:
-        ujson.dump(schedules, f)
 
 # Web server app
 app = Microdot()
@@ -52,13 +50,15 @@ def toggle_relay(request, pin, state):
         if state == 'on':
             relays[pin].value(1)  # Set GPIO high
             print(f"Relay {pin+1} turned on manually.")
-            publish_relay_status(client, pin, relays[pin].value())
+            if MQTT == 1:
+                publish_relay_status(client, pin, relays[pin].value())
             return 'Relay turned on!'
             
         elif state == 'off':
             relays[pin].value(0)  # Set GPIO low
             print(f"Relay {pin+1} turned off manually.")
-            publish_relay_status(client, pin, relays[pin].value())
+            if MQTT == 1:
+                publish_relay_status(client, pin, relays[pin].value())
             return 'Relay turned off!'
             
     return 'Invalid relay or command', 400
@@ -98,6 +98,14 @@ def set_schedule(request, pin):
 def get_schedules(request):
     return ujson.dumps(schedules), {'Content-Type': 'application/json'}
 
+# Load or create a schedule store
+try:
+    with open('schedules.json', 'r') as f:
+        schedules = ujson.load(f)
+except (OSError, ValueError):
+    schedules = [{} for _ in RELAY_PINS]
+    with open('schedules.json', 'w') as f:
+        ujson.dump(schedules, f)
 
 def check_schedules():
     while True:
@@ -131,11 +139,13 @@ def check_schedules():
             if str(current_day) in days:
                 if current_time == on_time:
                     relays[pin].value(1)
-                    publish_relay_status(client, pin, relays[pin].value())
+                    if MQTT == 1:
+                        publish_relay_status(client, pin, relays[pin].value())
                     print(f"Relay {pin+1} turned on at {current_time}")
                 elif current_time == off_time:
                     relays[pin].value(0)
-                    publish_relay_status(client, pin, relays[pin].value())
+                    if MQTT == 1:
+                        publish_relay_status(client, pin, relays[pin].value())
                     print(f"Relay {pin+1} turned off at {current_time}")
 
         time.sleep(15)  # Check every minute
@@ -186,6 +196,8 @@ def command_callback(topic, msg):
         relays[pin].value(0)
     publish_relay_status(client, pin, relays[pin].value())
 
+client = MQTTClient(CLIENT_ID, MQTT_BROKER, user=MQTT_USER, password=MQTT_PASSWORD)
+client.set_callback(command_callback)
 
 def check_messages():
     while True:
@@ -203,17 +215,86 @@ def reconnect():
         #client.subscribe(f"{TOPIC_BASE}#")
     except OSError as e:
         print("Failed to reconnect:", e)
+        client.connect()
+        
+ 
+def disconnect_from_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    if wlan.isconnected():
+        print("Disconnecting from WiFi...")
+        wlan.disconnect()
+        time.sleep(1)
+    print("Disconnected from WiFi")
+    
+def enter_AP_mode():
+    # Disconnect from WiFi
+    disconnect_from_wifi()
+    wifi = network.WLAN(network.STA_IF)
+    wifi.active(False)
+    # Create an Access Point for configuration
+    ap_ssid = "intelidwellSC"
+    #ap_ssid = "Mosby2"
+    ap_password = "Sprinkler12345"
+    
+    ap = network.WLAN(network.AP_IF)
+    ap.active(True)
+    ap.config(essid=ap_ssid, password=ap_password)
 
-client = MQTTClient(CLIENT_ID, MQTT_BROKER, user=MQTT_USER, password=MQTT_PASSWORD)
-client.set_callback(command_callback)
-client.connect()
+    print("Configuration mode activated. Connect to AP:", ap_ssid, "with password:", ap_password)
+    print("Visit http://192.168.4.1 in your web browser to configure.")
 
-for i in range(len(relays)):
-    client.subscribe(f"cmnd/zones/{i}/power")
+    # Serve the configuration page
+    app.run(host='0.0.0.0', port=80)
 
-publish_discovery(client)
 
-start_new_thread(check_schedules, ())
-start_new_thread(check_messages, ())
-# Start server
-app.run(host='0.0.0.0', port=80)
+
+def main():
+    
+    time.sleep(3)
+    connect_to_wifi()
+    # Set up relay pins
+
+    client.connect()
+
+    for i in range(len(relays)):
+        client.subscribe(f"cmnd/zones/{i}/power")
+
+    publish_discovery(client)
+
+    start_new_thread(check_schedules, ())
+    start_new_thread(check_messages, ())
+    # Start server
+    app.run(host='0.0.0.0', port=80)
+
+def main_without_mqtt():
+    global MQTT
+    MQTT = 0
+    time.sleep(3)
+    connect_to_wifi()
+
+    start_new_thread(check_schedules, ())
+    # Start server
+    app.run(host='0.0.0.0', port=80)
+
+def main_without_mqtt_or_wifi():
+    global MQTT
+    MQTT = 0
+    start_new_thread(check_schedules, ())
+    enter_AP_mode()
+    
+
+try:
+    main()
+    #client.subscribe(f"{TOPIC_BASE}#")
+except OSError as e:
+    print("Error found. Restarting without MQTT")
+    
+    try:
+        main_without_mqtt()
+    except OSError as e:
+        print("Error found again. Restarting without MQTT or WIFI")
+        try:
+            main_without_mqtt_or_wifi()
+        except OSError as e:
+            print("Serious error!")
+            
