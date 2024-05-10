@@ -7,24 +7,23 @@ from _thread import start_new_thread
 from machine import UART
 import uasyncio as asyncio
 from umqtt.simple import MQTTClient
+import usocket
 
 
 # Constants
-SSID = 'yourssid'
-PASSWORD = 'yourwifipassword'
-RELAY_PINS = [13, 5, 14, 27, 26, 25, 33, 32, 18, 19]  # Update your GPIO pin numbers here
+SSID = 'your_wifi_SSID'
+PASSWORD = 'your wifi password'
+RELAY_PINS = [13, 21, 14, 27, 26, 25, 33, 32, 19, 18]  # Update your GPIO pin numbers here
 relays = [Pin(pin, Pin.OUT) for pin in RELAY_PINS]
 
-#Set Pins High (for inverse logic)
 for i in range(10):
     relays[i].value(1)
 
-
 global MQTT
 MQTT=1
-MQTT_BROKER = "MQTT.BROKER.IP.ADDRESS"
-MQTT_USER = "MQTT_Username"
-MQTT_PASSWORD = "MQTT_Password"
+MQTT_BROKER = "your.mqtt.ip.address"
+MQTT_USER = "your mqtt username"
+MQTT_PASSWORD = "your mqtt password"
 CLIENT_ID = "intellidwell_sprinkler_controller"
 TOPIC_BASE = "home/sprinkler_zones/"
 
@@ -36,9 +35,13 @@ def connect_to_wifi():
     wifi = network.WLAN(network.STA_IF)
     wifi.active(True)
     wifi.connect(SSID, PASSWORD)
-    
+    count = 0
     while not wifi.isconnected():
-        pass
+        count = count + 1
+        print("Connecting to WiFi...")
+        time.sleep(1)
+        if count > 15 and not wifi.isconnected():    
+            pass
 
     print('Connected to WiFi at', wifi.ifconfig()[0])
 
@@ -52,14 +55,14 @@ def toggle_relay(request, pin, state):
     pin = int(pin)
     if pin >= 0 and pin < len(relays):
         if state == 'on':
-            relays[pin].value(0)  #Inverse Logic
+            relays[pin].value(0)  # Set GPIO high
             print(f"Relay {pin+1} turned on manually.")
             if MQTT == 1:
                 publish_relay_status(client, pin, relays[pin].value())
             return 'Relay turned on!'
             
         elif state == 'off':
-            relays[pin].value(1)  #Inverse Logic
+            relays[pin].value(1)  # Set GPIO low
             print(f"Relay {pin+1} turned off manually.")
             if MQTT == 1:
                 publish_relay_status(client, pin, relays[pin].value())
@@ -107,6 +110,7 @@ def toggle_schedule(request, pin, status):
         schedules[pin]['enabled'] = status
         with open('schedules.json', 'w') as f:
             ujson.dump(schedules, f)
+        publish_schedule_status(client, pin, status)
         return f"Schedule for Relay {pin+1} {'enabled' if status else 'disabled'}!"
     return 'Invalid pin or status', 400
 
@@ -122,6 +126,8 @@ except (OSError, ValueError):
     schedules = [{} for _ in RELAY_PINS]
     with open('schedules.json', 'w') as f:
         ujson.dump(schedules, f)
+
+
 
 def check_schedules():
     while True:
@@ -141,10 +147,7 @@ def check_schedules():
                     if MQTT == 1:
                         publish_relay_status(client, pin, relays[pin].value())
                     print(f"Relay {pin+1} turned off at {current_time}")
-        time.sleep(15) 
-
-# Setup MQTT client
-
+        time.sleep(15)    
 
 def publish_discovery(client):
     base_topic = "homeassistant/switch/zone_{}"
@@ -175,19 +178,39 @@ def publish_relay_status(client, relay, status):
     payload = "OFF" if status else "ON"
     client.publish(topic, payload)
     
+def update_schedule_status(pin, status):
+    if 0 <= pin < len(schedules):
+        schedules[pin]['enabled'] = status
+        with open('schedules.json', 'w') as f:
+            ujson.dump(schedules, f)
+        print(f"Schedule for Relay {pin+1} {'enabled' if status else 'disabled'}!")
+        return True
+    return False
+
 def command_callback(topic, msg):
     print(f"Command received: Topic: {topic}, Message: {msg}")
-    # Convert bytes to string for easier handling
+    # Decode bytes to string for easier handling
     topic = topic.decode()
     msg = msg.decode()
-    # Assuming topic format "cmnd/relays/{pin}/power"
     parts = topic.split('/')
-    pin = int(parts[2])
-    if msg == "ON":
-        relays[pin].value(0)
-    elif msg == "OFF":
-        relays[pin].value(1)
-    publish_relay_status(client, pin, relays[pin].value())
+    
+    # Check for relay control commands
+    if len(parts) == 4 and parts[0] == "cmnd" and parts[3] == "power":
+        pin = int(parts[2])
+        if msg == "ON":
+            relays[pin].value(0)  # Assuming '0' is ON for your relays
+        elif msg == "OFF":
+            relays[pin].value(1)  # Assuming '1' is OFF for your relays
+        publish_relay_status(client, pin, relays[pin].value())
+
+    # Check for schedule control commands
+    elif len(parts) == 4 and parts[1] == "zones" and parts[3] == "schedule":
+        pin = int(parts[2])
+        status = msg.lower() == "true"
+        if update_schedule_status(pin, status):
+            publish_schedule_status(client, pin, status)
+        else:
+            print("Invalid schedule operation")
 
 client = MQTTClient(CLIENT_ID, MQTT_BROKER, user=MQTT_USER, password=MQTT_PASSWORD)
 client.set_callback(command_callback)
@@ -238,8 +261,44 @@ def enter_AP_mode():
 
     # Serve the configuration page
     app.run(host='0.0.0.0', port=80)
+    
+    while True:
+        time.sleep(300)
+        machine.reset()
 
 
+def setup_mqtt_topics(client):
+    for i in range(10):
+        command_topic = f"cmnd/zones/{i}/schedule"
+        status_topic = f"stat/zones/{i}/schedule"
+        client.subscribe(command_topic)
+        publish_schedule_discovery(client, i, command_topic, status_topic)
+
+def publish_schedule_discovery(client, zone, command_topic, status_topic):
+    topic = f"homeassistant/switch/zone_{zone}_schedule/config"
+    payload = {
+        "name": f"Scheduler",
+        "command_topic": command_topic,
+        "state_topic": status_topic,
+        "payload_on": "true",
+        "payload_off": "false",
+        "unique_id": f"zone_{zone}_schedule_switch",
+        "device": {
+            "identifiers": [f"zone_{zone}"],
+            "name": f"Zone {zone + 1}",
+            "manufacturer": "Intellidwell",
+            "model": "Sprinkler Scheduler",
+            "sw_version": "1.0"
+        },
+        "platform": "mqtt"
+    }
+    client.publish(topic, ujson.dumps(payload), retain=True)
+    
+def publish_schedule_status(client, pin, enabled):
+    topic = f"stat/zones/{pin}/schedule"
+    payload = "true" if enabled else "false"
+    client.publish(topic, payload)
+        
 
 def main():
     
@@ -251,9 +310,9 @@ def main():
 
     for i in range(len(relays)):
         client.subscribe(f"cmnd/zones/{i}/power")
-
+    
     publish_discovery(client)
-
+    setup_mqtt_topics(client)
     start_new_thread(check_schedules, ())
     start_new_thread(check_messages, ())
     # Start server

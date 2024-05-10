@@ -422,14 +422,17 @@ function fetchSchedules() {
     });
 }
 
+
 function toggleSchedule(element, zone) {
     const isEnabled = element.checked;
     fetch(`/toggle-schedule/${zone}/${isEnabled}`)
     .then(response => response.text())
     .then(data => {
-        console.log(data); // Log server response for debugging
+        console.log(data);
+        publish_schedule_status(client, zone, isEnabled); // Add this line in the main.py appropriately
     });
 }
+
 
 document.addEventListener('DOMContentLoaded', function() {
     fetch('/get-schedules')
