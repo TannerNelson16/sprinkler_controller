@@ -67,6 +67,19 @@ button {
   cursor: pointer;
   border-radius: 12px;
 }
+button_red {
+  background-color: #FF0000;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 12px;
+}
 @media (max-width: 600px) {
   body {
     padding: 5px;
@@ -127,6 +140,9 @@ button {
   </label> Zone 10<br>
 </div>
 <button type="button" onclick="window.location.href='/scheduler'">Scheduler</button>
+<div>
+<button_red type="button_red" onclick="restartDevice()">Restart Device</button_red>
+</div>
 <script>
 
 function updateSwitches() {
@@ -154,6 +170,13 @@ function toggleRelay(element, pin) {
     fetch(`/relay/${pin}/${state}`)
     .then(response => response.text())
     .then(data => console.log(data));
+}
+
+function restartDevice() {
+    fetch('/restart', { method: 'POST' })
+    .then(response => response.text())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error restarting device:', error));
 }
 </script>
 </body>
