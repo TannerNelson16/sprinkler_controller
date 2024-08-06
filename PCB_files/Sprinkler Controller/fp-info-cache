@@ -1,4 +1,4 @@
-23834976234074676
+23840145157293658
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -356,6 +356,13 @@ battery CR-3032 coin cell vertical
 0
 2
 2
+Bridge_rectifier
+SOP510P1040X260-4N
+DFS_1--0
+Bridge Rectifier
+0
+4
+4
 Button_Switch_Keyboard
 SW_Cherry_MX_1.00u_PCB
 Cherry MX keyswitch, 1.00u, PCB mount, http://cherryamericas.com/wp-content/uploads/2014/12/mx_cat.pdf
@@ -87877,6 +87884,13 @@ Standex Meder SIL reed relais
 0
 4
 4
+Resistor_Network
+SOIC127P762X240-16N
+SOM-16
+Resistor Network
+0
+16
+16
 Resistor_SMD
 R_0201_0603Metric
 Resistor SMD 0201 (0603 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: https://www.vishay.com/docs/20052/crcw0201e3.pdf), generated with kicad-footprint-generator
@@ -89200,6 +89214,13 @@ rotary encoder illuminated switch vertical
 0
 9
 8
+SSR
+OR-M4XXA
+
+
+0
+4
+4
 Sensor
 ASAIR_AM2302_P2.54mm_Lead2.75mm_TabDown
 Temperature and humidity module, http://akizukidenshi.com/download/ds/aosong/AM2302.pdf
