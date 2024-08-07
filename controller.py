@@ -9,6 +9,7 @@ import uasyncio as asyncio
 from umqtt.simple import MQTTClient
 import ntptime
 import utime
+import uos as os
 
 # Constants
 SSID = 'Your SSID'
@@ -32,11 +33,18 @@ TOPIC_BASE = "home/sprinklers/"
 client = MQTTClient(CLIENT_ID, MQTT_BROKER, user=MQTT_USER, password=MQTT_PASSWORD, keepalive=60)
 client.set_last_will(f"{TOPIC_BASE}status", "Offline", retain=True)
 
+LOG_FILE = 'logs.txt'
+
+def log_message(message):
+    with open('logs.txt', 'a') as f:
+        f.write(f"{time.localtime()}: {message}\n")
+        
 def command_callback(topic, msg):
     print(f"Command received: Topic: {topic.decode()}, Message: {msg.decode()}")
     # Decode bytes to string for easier handling
     topic = topic.decode()
     msg = msg.decode()
+    log_message(f"Command received: Topic: {topic}, Message: {msg}")
     parts = topic.split('/')
     
     # Check for relay control commands
@@ -45,9 +53,11 @@ def command_callback(topic, msg):
         if msg == "ON":
             relays[pin].value(0)  # Assuming '0' is ON for your relays
             print(f"Relay {pin} turned ON via MQTT")
+            log_message(f"Relay {pin} turned ON via MQTT")
         elif msg == "OFF":
             relays[pin].value(1)  # Assuming '1' is OFF for your relays
             print(f"Relay {pin} turned OFF via MQTT")
+            log_message(f"Relay {pin} turned OFF via MQTT")
         publish_relay_status(client, pin, relays[pin].value())
 
     # Check for schedule control commands
@@ -58,6 +68,8 @@ def command_callback(topic, msg):
             publish_schedule_status(client, pin, status)
         else:
             print("Invalid schedule operation")
+            log_message("Invalid schedule operation")
+
 
 client.set_callback(command_callback)
 
@@ -73,6 +85,7 @@ async def connect_mqtt():
         publish_schedule_discovery(client)
     except Exception as e:
         print(f"Failed to connect to MQTT: {e}")
+        log_message(f"Failed to connect to MQTT: {e}")
         await asyncio.sleep(5)
         await connect_mqtt()
 
@@ -83,15 +96,46 @@ async def check_messages():
             client.check_msg()
         except OSError as e:
             print("Failed to check MQTT messages:", e)
+            log_message("Failed to check MQTT messages:", e)
             reconnect()
         await asyncio.sleep(1)
 
 # Web server app
 app = Microdot()
 
+@app.route('/logs-page')
+def logs_page(request):
+    return send_file('logs.html')
+
+@app.route('/get-logs')
+def get_logs(request):
+    print("Route /get-logs accessed")  # Debugging print statement
+
+    try:
+        with open('logs.txt', 'r') as f:
+            logs = f.read()
+        return logs, {'Content-Type': 'text/plain'}
+    except Exception as e:
+        log_message(f"Error reading logs: {e}")
+        return 'Error reading logs', 500
+    
+@app.route('/clear-logs', methods=['POST'])
+def clear_logs(request):
+    print("Route /clear-logs accessed")  # Debugging print statement
+
+    try:
+        with open('logs.txt', 'w') as f:
+            f.write("")
+        log_message("Logs cleared.")
+        return 'Logs cleared', 200
+    except Exception as e:
+        log_message(f"Error clearing logs: {e}")
+        return 'Error clearing logs', 500
+
 @app.route('/restart', methods=['POST'])
 def restart(request):
     print("Restarting device...")
+    log_message("Restarting device...")
     reset()
     return 'Restarting...', 200
 
@@ -101,13 +145,13 @@ def toggle_relay(request, pin, state):
     if pin >= 0 and pin < len(relays):
         if state == 'on':
             relays[pin].value(0)  # Set GPIO high
-            print(f"Relay {pin+1} turned on manually.")
+            log_message(f"Relay {pin+1} turned on manually.")
             if MQTT == 1:
                 publish_relay_status(client, pin, relays[pin].value())
             return 'Relay turned on!'
         elif state == 'off':
             relays[pin].value(1)  # Set GPIO low
-            print(f"Relay {pin+1} turned off manually.")
+            log_message(f"Relay {pin+1} turned off manually.")
             if MQTT == 1:
                 publish_relay_status(client, pin, relays[pin].value())
             return 'Relay turned off!'
@@ -200,13 +244,16 @@ async def sync_time():
             machine.RTC().datetime((tm[0], tm[1], tm[2], tm[6] + 1, tm[3], tm[4], tm[5], 0))
             
             print(f"Time adjusted to local timezone: {tm}")
+            log_message(f"Time adjusted to local timezone: {tm}")
         except Exception as e:
             print(f"Failed to sync time: {e}")
+            log_message(f"Failed to sync time: {e}")
         await asyncio.sleep(3600)  # Sync time every hour
 
 async def check_schedules():
     while True:
         print("Checking Shedules...")
+        log_message("Checking Shedules...")
         now = time.localtime()
         current_time = f"{now[3]:02}:{now[4]:02}"
         print("Current Time: ", current_time)
@@ -219,11 +266,13 @@ async def check_schedules():
                     if MQTT == 1:
                         publish_relay_status(client, pin, relays[pin].value())
                     print(f"Relay {pin+1} turned on at {current_time}")
+                    log_message(f"Relay {pin+1} turned on at {current_time}")
                 elif schedule.get('offTime') == current_time:
                     relays[pin].value(1)
                     if MQTT == 1:
                         publish_relay_status(client, pin, relays[pin].value())
                     print(f"Relay {pin+1} turned off at {current_time}")
+                    log_message(f"Relay {pin+1} turned off at {current_time}")
         await asyncio.sleep(10)  # Check every minute   
 
 def publish_discovery(client):
@@ -259,17 +308,21 @@ def update_schedule_status(pin, status):
         with open('schedules.json', 'w') as f:
             ujson.dump(schedules, f)
         print(f"Schedule for Relay {pin+1} {'enabled' if status else 'disabled'}!")
+        log_message(f"Schedule for Relay {pin+1} {'enabled' if status else 'disabled'}!")
         return True
     return False
     
 def reconnect():
     print("Reconnecting to MQTT broker...")
+    log_message("Reconnecting to MQTT broker...")
     try:
         client.connect()
         client.subscribe(f"cmnd/zone/#")
         print("Reconnected to MQTT broker and subscribed to topics.")
+        log_message("Reconnected to MQTT broker and subscribed to topics.")
     except OSError as e:
         print("Failed to reconnect:", e)
+        log_message("Failed to reconnect:", e)
         time.sleep(5)
         reconnect()
 
@@ -295,7 +348,9 @@ def enter_AP_mode():
     ap.config(essid=ap_ssid, password=ap_password)
 
     print("Configuration mode activated. Connect to AP:", ap_ssid, "with password:", ap_password)
+    log_message("Configuration mode activated. Connect to AP: {ap_ssid} with password:{ap_pass}")
     print("Visit http://192.168.4.1 in your web browser to configure.")
+    log_message("Visit http://192.168.4.1 in your web browser to configure.")
 
     # Serve the configuration page
     app.run(host='0.0.0.0', port=80)
@@ -353,6 +408,7 @@ async def main():
         #start_new_thread(run_server, ())
     except OSError as e:
         print("Error found. Restarting without MQTT:", e)
+        log_message("Error found. Restarting without MQTT: {e}")
         await main_without_mqtt()
 
 async def main_without_mqtt():
@@ -366,6 +422,7 @@ async def main_without_mqtt():
         )
     except OSError as e:
         print("Error found again. Restarting without MQTT or WIFI:", e)
+        log_message("Error found again. Restarting without MQTT or WIFI: {e}")
         await main_without_mqtt_or_wifi()
 
 async def main_without_mqtt_or_wifi():
@@ -378,10 +435,12 @@ async def main_without_mqtt_or_wifi():
         )
     except OSError as e:
         print("Serious error!", e)
+        log_message("Serious error!", e)
         # Potentially reset the device or take other action here
 
 async def run_ap_mode():
     print("Entering AP mode...")
+    log_message("Entering AP mode...")
     enter_AP_mode()
 
 try:

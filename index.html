@@ -9,6 +9,7 @@ body {
   color: white;
   font-family: Arial, sans-serif;
   padding: 20px;
+  position: relative;
 }
 h1 {
   color: #FFD700;
@@ -80,6 +81,26 @@ button_red {
   cursor: pointer;
   border-radius: 12px;
 }
+}
+.logs-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #2196F3;
+  border: none;
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logs-button svg {
+  width: 24px;
+  height: 24px;
+  fill: white;
+}
 @media (max-width: 600px) {
   body {
     padding: 5px;
@@ -91,15 +112,19 @@ button_red {
     width: 100%;
     padding: 12px;
   }
-}
+  .logs-button {
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+  }
 </style>
 </head>
 <body>
 <h1>Intellidwell Sprinkler Controller</h1>
-<div>
 
+<div>
   <label class="switch">
-    <input type="checkbox" onchange="toggleRelay(this, 0)" data-index="0"">
+    <input type="checkbox" onchange="toggleRelay(this, 0)" data-index="0">
     <span class="slider"></span>
   </label> Zone 1<br>
   <label class="switch">
@@ -141,10 +166,12 @@ button_red {
 </div>
 <button type="button" onclick="window.location.href='/scheduler'">Scheduler</button>
 <div>
+<button class="logs-button" onclick="window.location.href='/logs-page'">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 2h14a2 2 0 012 2v16a2 2 0 01-2 2H3a2 2 0 01-2-2V4a2 2 0 012-2zm0 2v16h14V4H3zm2 2h2v12H5V6zm4 0h2v12H9V6zm4 0h2v12h-2V6z"/></svg>
+</button>
 <button_red type="button_red" onclick="restartDevice()">Restart Device</button_red>
 </div>
 <script>
-
 function updateSwitches() {
     fetch('/get-relay-states')
     .then(response => response.json())
@@ -181,5 +208,6 @@ function restartDevice() {
 </script>
 </body>
 </html>
+
 
 

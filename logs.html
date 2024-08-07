@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Intellidwell Sprinkler Controller - Logs</title>
+    <style>
+        body {
+            background-color: #333;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            color: #FFD700;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+        .log-area {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ccc;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #444;
+            color: white;
+            white-space: pre-line;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 12px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+        }
+        .button:disabled {
+            background-color: #aaa;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 5px;
+            }
+            .log-area {
+                height: 300px;
+            }
+            .button {
+                width: 100%;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>System Logs</h1>
+    <div class="container">
+        <div class="log-area" id="logArea">Loading logs...</div>
+        <button class="button" id="clearButton" onclick="clearLogs()">Clear Logs</button>
+    </div>
+
+    <script>
+        function fetchLogs() {
+            fetch('/get-logs')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('logArea').innerHTML = data.replace(/\n/g, '<br>');
+                    const logArea = document.getElementById('logArea');
+                    logArea.scrollTop = logArea.scrollHeight; // Scroll to the bottom
+                });
+        }
+
+        function clearLogs() {
+            fetch('/clear-logs', { method: 'POST' })
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('logArea').textContent = '';
+                    alert(data);
+                });
+        }
+
+        window.onload = function() {
+            fetchLogs();
+            setInterval(fetchLogs, 2000); // Fetch logs every 2 seconds
+        };
+    </script>
+</body>
+</html>
+
+
