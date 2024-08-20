@@ -6333,6 +6333,50 @@
 		)
 		(uuid "ffb9f916-b074-4c7e-b20f-7921b72e26e3")
 	)
+	(label "Out"
+		(at 91.44 39.37 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8f894fef-3697-4ee0-a326-b5e8ee3defb9")
+	)
+	(label "FB"
+		(at 92.71 34.29 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "91a8e1e3-cf92-44d6-bd95-f47e6c2d4734")
+	)
+	(label "Vin"
+		(at 19.05 21.59 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d61dea9d-df42-4e8e-9f53-21ab60f360da")
+	)
+	(label "div"
+		(at 111.76 48.26 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "fbd263e9-7814-4876-a5ae-5e1153d01447")
+	)
 	(symbol
 		(lib_id "Resistor_Network:4816P-T02-681LF")
 		(at 109.22 67.31 0)

@@ -16,9 +16,9 @@ import gc
 machine.sleep(0)       # Disable light sleep
 
 # Constants
-SSID = "Mosby2"
-PASSWORD = "Tf2241994!"
-RELAY_PINS = [13, 21, 14, 27, 26, 25, 33, 32, 19, 18]  # Update your GPIO pin numbers here
+SSID = "YourWIFISSID"
+PASSWORD = "YourWIFIPassword"
+RELAY_PINS = [13, 21, 14, 27, 26, 25, 33, 32, 19, 18]
 relays = [Pin(pin, Pin.OUT) for pin in RELAY_PINS]
 wifi = network.WLAN(network.STA_IF)
 for relay in relays:
@@ -26,38 +26,45 @@ for relay in relays:
 
 global MQTT
 MQTT = 1
-MQTT_BROKER = "192.168.1.74"
-MQTT_USER = "Tanner23456"
-MQTT_PASSWORD = "Tn7281994!"
+MQTT_BROKER = "Your.MQTT.IP.ADDRESS"
+MQTT_USER = "YourMQTTUsername"
+MQTT_PASSWORD = "YourMQTTPassword"
 
 CLIENT_ID = "intellidwell_SC"
 TOPIC_BASE = "home/sprinklers/"
 
-client = MQTTClient(CLIENT_ID, MQTT_BROKER, user=MQTT_USER, password=MQTT_PASSWORD, keepalive=60)
+client = MQTTClient(CLIENT_ID, MQTT_BROKER, user=MQTT_USER, password=MQTT_PASSWORD, keepalive=30)
 client.set_last_will(f"{TOPIC_BASE}status", "Offline", retain=True)
 
 LOG_FILE = 'logs.txt'
-log_buffer = []  # Buffer for in-memory logging
-LOG_BUFFER_LIMIT = 5  # Lower limit to reduce memory usage
+LOG_MAX_LINES = 25  # Keep only the last 25 lines of logs
+MAX_RECONNECT_ATTEMPTS = 10  # Maximum number of reconnection attempts
 
 def log_message(message):
-    global log_buffer
     current_time = time.localtime()
     timestamp = "{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}".format(*current_time[:6])
-    log_buffer.append(f"{timestamp}: {message}\n")
-    print(f"LOG: {timestamp}: {message}")  # Immediate console feedback
-    if len(log_buffer) >= LOG_BUFFER_LIMIT:  # Flush the buffer to file when it reaches the limit
-        flush_log_buffer()
-
-def flush_log_buffer():
-    global log_buffer
+    log_entry = f"{timestamp}: {message}\n"
+    
     try:
+        # Write the log entry to the log file
         with open(LOG_FILE, 'a') as f:
-            for line in log_buffer:
-                f.write(line)
-        log_buffer = []
-    except Exception as e:
-        print(f"Failed to flush log buffer: {e}")
+            f.write(log_entry)
+        
+        # Read the entire log file and keep the last LOG_MAX_LINES lines
+        with open(LOG_FILE, 'r') as f:
+            lines = f.readlines()  # This will always return a list of strings
+        
+        # Trim the log file if it exceeds the maximum number of lines
+        if len(lines) > LOG_MAX_LINES:
+            with open(LOG_FILE, 'w') as f:
+                f.writelines(lines[-LOG_MAX_LINES:])  # Always pass a list of strings to writelines()
+                
+    except OSError as e:
+        print(f"Failed to log message: {e}")
+        # Add a fallback to prevent the program from failing entirely
+        print(f"LOG ENTRY (Fallback): {log_entry}")
+    
+    print(f"LOG: {timestamp}: {message}")  # Immediate console feedback
 
 def command_callback(topic, msg):
     topic = topic.decode()
@@ -92,7 +99,7 @@ async def connect_mqtt():
     except Exception as e:
         log_message(f"Failed to connect to MQTT: {e}")
         await asyncio.sleep(5)
-        await connect_mqtt()
+        await reconnect()
 
 async def subscribe_to_topics():
     try:
@@ -117,16 +124,49 @@ async def check_messages():
 
 async def reconnect():
     log_message("Reconnecting to MQTT broker...")
-    try:
-        client.disconnect()
-        await asyncio.sleep(5)  # Short delay before reconnecting
-        client.connect()
-        log_message("Reconnected to MQTT broker.")
-        await subscribe_to_topics()  # Ensure all subscriptions are re-established
-    except OSError as e:
-        log_message(f"Failed to reconnect: {e}")
-        await asyncio.sleep(10)  # Increase delay after failure
-        await reconnect()  # Continue attempting to reconnect
+    reconnect_attempts = 0
+
+    while reconnect_attempts < MAX_RECONNECT_ATTEMPTS:
+        try:
+            client.disconnect()
+            await asyncio.sleep(5)  # Short delay before reconnecting
+
+            if not wifi.isconnected():
+                wifi.active(False)
+                await asyncio.sleep(1)
+                wifi.active(True)
+                wifi.connect(SSID, PASSWORD)
+                retry_count = 0
+                while not wifi.isconnected() and retry_count < 10:
+                    log_message(f"Reconnecting to Wi-Fi... Attempt {retry_count + 1}")
+                    retry_count += 1
+                    await asyncio.sleep(1)
+                if not wifi.isconnected():
+                    log_message("Failed to reconnect to Wi-Fi. Restarting AP mode.")
+                    await run_ap_mode()
+                    return  # Exit function after entering AP mode
+
+            client.connect()
+            log_message("Reconnected to MQTT broker.")
+            await subscribe_to_topics()  # Re-subscribe
+            return  # Exit on success
+
+        except OSError as e:
+            log_message(f"Failed to reconnect: {e}")
+            reconnect_attempts += 1
+            await asyncio.sleep(10)
+
+    log_message("Max reconnection attempts reached. Resetting device.")
+    disconnect_from_wifi()
+    reset()
+
+# New helper to monitor memory usage
+def monitor_memory():
+    free_memory = gc.mem_free()
+    log_message(f"Free memory: {free_memory}")
+    if free_memory < 10000:  # Set a threshold that you feel is safe
+        log_message("Low memory warning!")
+        gc.collect()
 
 # Web server app
 app = Microdot()
@@ -138,21 +178,16 @@ def logs_page(request):
 @app.route('/get-logs')
 def get_logs(request):
     try:
-        flush_log_buffer()  # Ensure all logs are written to the file
-        response_text = ''
         with open(LOG_FILE, 'r') as f:
-            for line in f:
-                response_text += line
-                if len(response_text) > 1024:  # Send in smaller chunks
-                    return response_text, {'Content-Type': 'text/plain'}
-        return response_text, {'Content-Type': 'text/plain'}
-    except MemoryError:
-        log_message("MemoryError while reading logs.")
-        gc.collect()  # Run garbage collection
-        return 'Error reading logs', 500
-    except Exception as e:
+            logs = f.read()
+        return logs, {'Content-Type': 'text/plain'}
+    except OSError as e:
         log_message(f"Error reading logs: {e}")
         return 'Error reading logs', 500
+    except Exception as e:
+        log_message(f"Unexpected error: {e}")
+        return 'Unexpected error', 500
+
 
 @app.route('/clear-logs', methods=['POST'])
 def clear_logs(request):
@@ -168,7 +203,6 @@ def clear_logs(request):
 @app.route('/restart', methods=['POST'])
 def restart(request):
     log_message("Restarting device...")
-    flush_log_buffer()
     gc.collect()  # Run garbage collection
     reset()
     return 'Restarting...', 200
@@ -305,7 +339,7 @@ async def check_schedules():
                             publish_relay_status(client, pin, relays[pin].value())
                         log_message(f"Relay {pin+1} turned off at {current_time}")
             await asyncio.sleep(60)  # Check every minute instead of every 10 seconds
-            gc.collect()  # Run garbage collection
+            monitor_memory()  # Monitor memory usage
         except Exception as e:
             log_message(f"Exception in check_schedules: {e}")
             await asyncio.sleep(60)
@@ -483,4 +517,3 @@ except Exception as e:
             asyncio.run(main_without_mqtt_or_wifi())
         except Exception as e:
             log_message(f"Serious error in final recovery: {e}")
-
