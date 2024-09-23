@@ -1,4 +1,4 @@
-23841868198144608
+23848764094619787
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -96963,3 +96963,31 @@ ESPWROOM32, ESP32, 30 GPIOs version
 0
 30
 30
+footprints
+RES3_PV36W103C01B00_BRN
+
+PV36W103C01B00 
+0
+3
+3
+footprints
+TSOT23-6-A_TPK
+
+TPP362081-T6TR 
+0
+6
+6
+footprints
+TSOT23-6-A_TPK-L
+
+TPP362081-T6TR 
+0
+6
+6
+footprints
+TSOT23-6-A_TPK-M
+
+TPP362081-T6TR 
+0
+6
+6

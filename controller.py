@@ -12,12 +12,13 @@ import ntptime
 import utime
 import uos as os
 import gc
+import socket
 
 machine.sleep(0)       # Disable light sleep
 
 # Constants
-SSID = "YourWIFISSID"
-PASSWORD = "YourWIFIPassword"
+SSID = "Mosby2"
+PASSWORD = "Tf2241994!"
 RELAY_PINS = [13, 21, 14, 27, 26, 25, 33, 32, 19, 18]
 relays = [Pin(pin, Pin.OUT) for pin in RELAY_PINS]
 wifi = network.WLAN(network.STA_IF)
@@ -26,14 +27,14 @@ for relay in relays:
 
 global MQTT
 MQTT = 1
-MQTT_BROKER = "Your.MQTT.IP.ADDRESS"
-MQTT_USER = "YourMQTTUsername"
-MQTT_PASSWORD = "YourMQTTPassword"
+MQTT_BROKER = "38.70.247.173"
+MQTT_USER = "Tanner23456"
+MQTT_PASSWORD = "Tn7281994!"
 
 CLIENT_ID = "intellidwell_SC"
 TOPIC_BASE = "home/sprinklers/"
 
-client = MQTTClient(CLIENT_ID, MQTT_BROKER, user=MQTT_USER, password=MQTT_PASSWORD, keepalive=30)
+client = MQTTClient(CLIENT_ID, MQTT_BROKER, user=MQTT_USER, password=MQTT_PASSWORD, keepalive=60)
 client.set_last_will(f"{TOPIC_BASE}status", "Offline", retain=True)
 
 LOG_FILE = 'logs.txt'
@@ -44,27 +45,29 @@ def log_message(message):
     current_time = time.localtime()
     timestamp = "{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}".format(*current_time[:6])
     log_entry = f"{timestamp}: {message}\n"
-    
+
     try:
-        # Write the log entry to the log file
+        # Open the log file in append mode and write the log entry
         with open(LOG_FILE, 'a') as f:
             f.write(log_entry)
-        
-        # Read the entire log file and keep the last LOG_MAX_LINES lines
+
+        # Read the log file, ensuring we keep only the last LOG_MAX_LINES lines
         with open(LOG_FILE, 'r') as f:
-            lines = f.readlines()  # This will always return a list of strings
-        
-        # Trim the log file if it exceeds the maximum number of lines
+            lines = f.read().splitlines()  # Read as a list of strings without the newline characters
+
+        # If the log exceeds the maximum size, write back the trimmed version
         if len(lines) > LOG_MAX_LINES:
             with open(LOG_FILE, 'w') as f:
-                f.writelines(lines[-LOG_MAX_LINES:])  # Always pass a list of strings to writelines()
-                
-    except OSError as e:
+                f.write("\n".join(lines[-LOG_MAX_LINES:]) + "\n")  # Write lines back as a single string
+
+    except (OSError, AttributeError) as e:
+        # Log an error message to the console if writing to the log fails
         print(f"Failed to log message: {e}")
-        # Add a fallback to prevent the program from failing entirely
         print(f"LOG ENTRY (Fallback): {log_entry}")
-    
-    print(f"LOG: {timestamp}: {message}")  # Immediate console feedback
+
+    # Print the log entry to the console for immediate feedback
+    print(f"LOG: {timestamp}: {message}")
+
 
 def command_callback(topic, msg):
     topic = topic.decode()
@@ -123,42 +126,38 @@ async def check_messages():
         gc.collect()  # Run garbage collection to free up memory
 
 async def reconnect():
+    max_mqtt_retries = 5  # Try MQTT reconnections multiple times before giving up
+    mqtt_retry_delay = 2  # Start with a 2-second delay
+    mqtt_attempt_count = 0
+
     log_message("Reconnecting to MQTT broker...")
-    reconnect_attempts = 0
-
-    while reconnect_attempts < MAX_RECONNECT_ATTEMPTS:
+    while mqtt_attempt_count < max_mqtt_retries:
         try:
-            client.disconnect()
-            await asyncio.sleep(5)  # Short delay before reconnecting
+            # Disconnect MQTT client if still connected
+            try:
+                client.disconnect()
+            except Exception as e:
+                log_message(f"Error during MQTT disconnect: {e}")
 
-            if not wifi.isconnected():
-                wifi.active(False)
-                await asyncio.sleep(1)
-                wifi.active(True)
-                wifi.connect(SSID, PASSWORD)
-                retry_count = 0
-                while not wifi.isconnected() and retry_count < 10:
-                    log_message(f"Reconnecting to Wi-Fi... Attempt {retry_count + 1}")
-                    retry_count += 1
-                    await asyncio.sleep(1)
-                if not wifi.isconnected():
-                    log_message("Failed to reconnect to Wi-Fi. Restarting AP mode.")
-                    await run_ap_mode()
-                    return  # Exit function after entering AP mode
+            await asyncio.sleep(5)  # Short delay before attempting to reconnect
 
+            # Reconnect to the MQTT broker
             client.connect()
             log_message("Reconnected to MQTT broker.")
-            await subscribe_to_topics()  # Re-subscribe
-            return  # Exit on success
+            await subscribe_to_topics()  # Re-subscribe to topics after reconnecting
+            return  # Exit on successful reconnection
 
         except OSError as e:
-            log_message(f"Failed to reconnect: {e}")
-            reconnect_attempts += 1
-            await asyncio.sleep(10)
+            log_message(f"Failed to reconnect to MQTT broker: {e}")
+            mqtt_attempt_count += 1
+            await asyncio.sleep(mqtt_retry_delay)
 
-    log_message("Max reconnection attempts reached. Resetting device.")
-    disconnect_from_wifi()
-    reset()
+            # Exponential backoff for MQTT retries
+            mqtt_retry_delay = min(mqtt_retry_delay * 2, 60)  # Cap retry delay at 60 seconds
+
+    log_message("Max MQTT reconnection attempts reached. Will continue running without MQTT.")
+    # Consider staying in Wi-Fi mode without MQTT if desired
+    return
 
 # New helper to monitor memory usage
 def monitor_memory():
@@ -284,26 +283,48 @@ except (OSError, ValueError):
     log_message("Created new schedules.json file")
 
 async def connect_to_wifi():
-    try:
-        ap = network.WLAN(network.AP_IF)
-        ap.active(False)
-        wifi = network.WLAN(network.STA_IF)
-        wifi.active(True)
-        wifi.config(pm=0)
-        wifi.connect(SSID, PASSWORD)
-        count = 0
-        while not wifi.isconnected() and count < 30:  # Increase the timeout
-            count += 1
-            log_message(f"Connecting to WiFi... Attempt {count}")
-            await asyncio.sleep(1)
-        if wifi.isconnected():
-            log_message('Connected to WiFi')
-        else:
-            log_message('Failed to connect to WiFi. Entering AP mode.')
-            enter_AP_mode()
-    except Exception as e:
-        log_message(f"Exception during WiFi connection: {e}")
-        enter_AP_mode()
+    max_wifi_attempts = 10  # Increase the number of Wi-Fi connection attempts
+    retry_delay = 2  # Start with a 2-second delay
+    attempt_count = 0
+
+    while attempt_count < max_wifi_attempts:
+        try:
+            # Disable AP mode if it's running
+            ap = network.WLAN(network.AP_IF)
+            ap.active(False)
+            
+            # Activate Wi-Fi interface
+            wifi = network.WLAN(network.STA_IF)
+            wifi.active(True)
+            wifi.config(pm=0)  # Disable power-saving mode to maintain a stronger connection
+            wifi.connect(SSID, PASSWORD)
+
+            # Retry Wi-Fi connection
+            count = 0
+            max_retries = 40  # Retry connecting to Wi-Fi up to 40 times before increasing the delay
+            while not wifi.isconnected() and count < max_retries:
+                count += 1
+                log_message(f"Attempt {attempt_count + 1}, Wi-Fi connection retry {count}...")
+                await asyncio.sleep(1)
+
+            if wifi.isconnected():
+                log_message('Connected to Wi-Fi')
+                return  # Successfully connected, exit function
+
+            else:
+                log_message(f"Wi-Fi connection attempt {attempt_count + 1} failed. Retrying...")
+                attempt_count += 1
+                await asyncio.sleep(retry_delay)
+                retry_delay = min(retry_delay * 2, 60)  # Exponential backoff up to 60 seconds
+
+        except Exception as e:
+            log_message(f"Exception during Wi-Fi connection: {e}")
+            attempt_count += 1
+            await asyncio.sleep(retry_delay)
+
+    # Exhausted all Wi-Fi connection attempts
+    log_message('Failed to connect to Wi-Fi after all attempts. Entering AP mode as a last resort.')
+    enter_AP_mode()
 
 async def sync_time():
     timezone_offset = -6  # Adjust this to your timezone offset from UTC
@@ -459,12 +480,47 @@ def publish_schedule_status(client, pin, enabled):
     except Exception as e:
         log_message(f"Failed to publish schedule status: {e}")
 
+
 def run_server():
     log_message("Starting Microdot server...")
-    app.run(host='0.0.0.0', port=80)
 
+    try:
+        # Manually create a socket for Microdot
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.bind(('0.0.0.0', 80))
+        server_socket.listen(5)
+
+        log_message("Microdot server running and listening for connections...")
+
+        while True:
+            try:
+                client_sock, addr = server_socket.accept()
+                #log_message(f"Accepted connection from {addr}")
+
+                try:
+                    app.handle_request(client_sock, addr)
+                except OSError as e:
+                    if e.errno in [104, 128]:  # ECONNRESET, ENOTCONN
+                        log_message(f"Connection error: {e} from {addr}")
+                    else:
+                        raise
+                finally:
+                    client_sock.close()
+
+            except OSError as e:
+                log_message(f"Server socket error: {e}")
+                if e.errno == 128:  # ENOTCONN
+                    log_message(f"ENOTCONN error: {e}")
+                else:
+                    raise
+
+    except Exception as e:
+        log_message(f"Failed to start or run Microdot server: {e}")
+        
+        
 async def main():
     try:
+        disconnect_from_wifi()
         await connect_to_wifi()
         await connect_mqtt()
         start_new_thread(run_server, ())
@@ -517,3 +573,50 @@ except Exception as e:
             asyncio.run(main_without_mqtt_or_wifi())
         except Exception as e:
             log_message(f"Serious error in final recovery: {e}")
+
+# async def main():
+#     try:
+#         await connect_to_wifi()  # Try to connect to Wi-Fi first
+#         await connect_mqtt()  # Try to connect to MQTT once Wi-Fi is established
+# 
+#         # Start the Microdot server and other tasks only after successful connections
+#         start_new_thread(run_server, ())
+#         
+#         await asyncio.gather(
+#             sync_time(),
+#             check_schedules(),
+#             check_messages()
+#         )
+#         
+#     except Exception as e:
+#         log_message(f"Error in main loop: {e}")
+#         # Retry without MQTT first, and as a last resort, enter AP mode
+#         await main_without_mqtt()
+# 
+# 
+# async def main_without_mqtt():
+#     global MQTT
+#     MQTT = 0
+#     try:
+#         await connect_to_wifi()  # Reconnect to Wi-Fi, but skip MQTT
+#         start_new_thread(run_server, ())  # Start the server even without MQTT
+# 
+#         await asyncio.gather(
+#             check_schedules(),
+#             run_server()
+#         )
+# 
+#     except Exception as e:
+#         log_message(f"Error found again. Entering AP mode as a last resort: {e}")
+#         await enter_ap_mode_after_failures()  # Delay entering AP mode until all retries are exhausted
+# 
+# 
+# async def enter_ap_mode_after_failures():
+#     log_message("Attempting last recovery before entering AP mode.")
+#     await connect_to_wifi()  # Try Wi-Fi one last time
+# 
+#     if wifi.isconnected():
+#         log_message("Recovered connection without entering AP mode.")
+#     else:
+#         log_message("All recovery attempts failed. Entering AP mode.")
+#         enter_AP_mode()
