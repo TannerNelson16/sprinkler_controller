@@ -1,0 +1,29 @@
+%TF.GenerationSoftware,KiCad,Pcbnew,8.0.5-8.0.5-0~ubuntu24.04.1*%
+%TF.CreationDate,2024-09-24T11:01:08-06:00*%
+%TF.ProjectId,Sprinkler_Controller_V2,53707269-6e6b-46c6-9572-5f436f6e7472,rev?*%
+%TF.SameCoordinates,Original*%
+%TF.FileFunction,Legend,Bot*%
+%TF.FilePolarity,Positive*%
+%FSLAX46Y46*%
+G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
+G04 Created by KiCad (PCBNEW 8.0.5-8.0.5-0~ubuntu24.04.1) date 2024-09-24 11:01:08*
+%MOMM*%
+%LPD*%
+G01*
+G04 APERTURE LIST*
+%ADD10C,0.508000*%
+G04 APERTURE END LIST*
+D10*
+%TO.C,RV1*%
+X147173500Y-107600000D02*
+G75*
+G02*
+X146411500Y-107600000I-381000J0D01*
+G01*
+X146411500Y-107600000D02*
+G75*
+G02*
+X147173500Y-107600000I381000J0D01*
+G01*
+%TD*%
+M02*
