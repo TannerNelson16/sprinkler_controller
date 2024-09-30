@@ -14,6 +14,7 @@ import utime
 import uos as os
 import gc
 import socket
+import usocket
 
 machine.sleep(0)       # Disable light sleep
 global MQTT
@@ -93,6 +94,8 @@ def save_settings(settings):
     if settings is None or not isinstance(settings, dict):
         raise ValueError("Invalid settings format. Expected a dictionary.")
     try:
+        # Ensure mqtt_enabled is treated as integer 0 or 1
+        settings['mqtt_enabled'] = int(settings.get('mqtt_enabled', 0))  
         with open('settings.json', 'w') as f:
             ujson.dump(settings, f)
         log_message("Settings saved successfully.")
@@ -274,17 +277,23 @@ def toggle_relay(request, pin, state):
         if state == 'on':
             relays[pin].value(0)
             log_message(f"Relay {pin+1} turned on manually.")
-            if MQTT == 1:
-                publish_relay_status(client, pin, relays[pin].value())
-            return 'Relay turned on!'
         elif state == 'off':
             relays[pin].value(1)
             log_message(f"Relay {pin+1} turned off manually.")
-            if MQTT == 1:
-                publish_relay_status(client, pin, relays[pin].value())
-            return 'Relay turned off!'
-    return 'Invalid relay or command', 400
+        else:
+            return 'Invalid state', 400
 
+        # Check if MQTT is enabled and client is connected
+        if MQTT == 1:
+            try:
+                publish_relay_status(client, pin, relays[pin].value())
+                log_message(f"Published MQTT message for Relay {pin+1} state: {state}")
+            except Exception as e:
+                log_message(f"Failed to publish MQTT message for Relay {pin+1}: {e}")
+        
+        return f'Relay {state}!'
+    
+    return 'Invalid relay or command', 400
 @app.route('/')
 def index(request):
     return send_file('index.html')
@@ -378,12 +387,12 @@ async def connect_to_wifi():
             wifi.connect(SSID, PASSWORD)
 
             # Retry Wi-Fi connection
-            count = 0
-            max_retries = 40  # Retry connecting to Wi-Fi up to 40 times before increasing the delay
-            while not wifi.isconnected() and count < max_retries:
-                count += 1
-                log_message(f"Attempt {attempt_count + 1}, Wi-Fi connection retry {count}...")
-                await asyncio.sleep(1)
+            #count = 0
+            #max_retries = 40  # Retry connecting to Wi-Fi up to 40 times before increasing the delay
+            #while not wifi.isconnected() and count < max_retries:
+             #   count += 1
+             #   log_message(f"Attempt {attempt_count + 1}, Wi-Fi connection retry {count}...")
+             #   await asyncio.sleep(1)
 
             if wifi.isconnected():
                 log_message('Connected to Wi-Fi')
@@ -510,11 +519,12 @@ def enter_AP_mode():
         
         ap = network.WLAN(network.AP_IF)
         ap.active(True)
-        ap.config(essid=ap_ssid, password=ap_password,authmode=3)
+        ap.config(essid=ap_ssid, password=ap_password, authmode=3)
 
         log_message(f"Configuration mode activated. Connect to AP: {ap_ssid} with password:{ap_password}")
         log_message("Visit http://192.168.4.1 in your web browser to configure.")
 
+        # Start the web server to handle the configuration page
         app.run(host='0.0.0.0', port=80)
         while True:
             time.sleep(300)
@@ -559,6 +569,8 @@ def publish_schedule_status(client, pin, enabled):
         log_message(f"Failed to publish schedule status: {e}")
 
 
+
+
 def run_server():
     log_message("Starting Microdot server...")
 
@@ -594,6 +606,7 @@ def run_server():
 
     except Exception as e:
         log_message(f"Failed to start or run Microdot server: {e}")
+
         
         
 async def main():
