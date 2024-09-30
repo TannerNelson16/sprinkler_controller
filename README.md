@@ -42,8 +42,6 @@ esptool.py --chip esp32 --port /dev/ttyUSB0 --baud 460800 write_flash -z 0x1000 
 ```
 Once micropython has been successfully installed on the board, download the files in the repository navigate to it's folder.
 
-Open the controller.py file using vi, nano, or another editor of your choice and change the ssid, wifi password, mqtt broker ip address, mqtt username, and mqtt password. 
-
 Once this is complete, save the file and run the following commands:
 ```
 pip install adafruit-ampy
@@ -55,9 +53,11 @@ ampy --port /dev/ttyUSB0  put microdot.py
 ampy --port /dev/ttyUSB0  put microdot_asyncio.py
 ampy --port /dev/ttyUSB0  put controller.py /main.py
 ```
-Reboot and navigate to the board's IP address from a web browser. You should also see the Zones auto populate in your home assistant instance if applicable.
+Reboot and connect to the "intellidwellSC" SSID with password "Sprinkler12345" from any device. In a browser type in 192.168.4.1 to access the sprinkler controller UI.
 
-NOTE: If the network is unavailable, the ESP32 will first try to connect without the MQTT integration. If the network is still causing errors, the ESP32 will generate an AP to allow for control of the sprinkler system. This can be accessed by connecting to the SSID: intellidwellSC and navigating to 192.168.4.1
+To connect to a Wifi Network navigate to "Settings" on the main page and enter in your WiFi credentials. You can also input your MQTT credentials here if you wish. When the device is rebooted, you can access the UI from the associated IP address on your network, or from your MQTT integration system of choice.
+
+NOTE: If the network is unavailable, the ESP32 will first try to connect without the MQTT integration. If the network is still causing errors, the ESP32 will resume AP mode to allow for control of the sprinkler system. 
 
 Enclosure:
 -
@@ -74,3 +74,7 @@ Assembly:
   <img src="attachments/assembly_2.jpg" width="500">
 
 </p>
+
+In The Works:
+
+I'm currently building a PCB to provide a more clean version of what's pictured above. See the "PCB files" folder if interested. Will update when complete and tested.
