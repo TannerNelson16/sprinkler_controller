@@ -3,6 +3,7 @@ import network
 from machine import Pin, RTC, reset
 import machine
 import ujson
+import json
 import time
 from time import sleep
 from _thread import start_new_thread
@@ -15,31 +16,91 @@ import gc
 import socket
 
 machine.sleep(0)       # Disable light sleep
+global MQTT
 
+def load_settings():
+    try:
+        with open('settings.json', 'r') as f:
+            config = ujson.load(f)  # Try loading the settings using ujson
+            # Ensure the necessary keys exist, if not, provide defaults
+            if not isinstance(config, dict):
+                raise ValueError("Config is not a valid dictionary.")
+            return {
+                "ssid": config.get("ssid", ""),
+                "wifi_password": config.get("wifi_password", ""),
+                "mqtt_server": config.get("mqtt_server", ""),
+                "mqtt_username": config.get("mqtt_username", ""),
+                "mqtt_password": config.get("mqtt_password", ""),
+                "mqtt_enabled": config.get("mqtt_enabled", 0)  # Default to disabled (0) if not present
+            }
+    except (OSError, ValueError) as e:
+        print(f"Error loading settings.json: {e}, loading default settings...")
+        return {
+            "ssid": "",
+            "wifi_password": "",
+            "mqtt_server": "",
+            "mqtt_username": "",
+            "mqtt_password": "",
+            "mqtt_enabled": 0  # Default to disabled
+        }
+
+
+    
+config = load_settings()
+
+# Example of using the configuration
+SSID = config['ssid']
+PASSWORD = config['wifi_password']
+MQTT_BROKER = config['mqtt_server']
+MQTT_USER = config['mqtt_username']
+MQTT_PASSWORD = config['mqtt_password']
+MQTT = config.get('mqtt_enabled', 1) 
 # Constants
-SSID = "Mosby2"
-PASSWORD = "Tf2241994!"
 RELAY_PINS = [13, 21, 14, 27, 26, 25, 33, 32, 19, 18]
 relays = [Pin(pin, Pin.OUT) for pin in RELAY_PINS]
 wifi = network.WLAN(network.STA_IF)
 for relay in relays:
     relay.value(1)
 
-global MQTT
-MQTT = 1
-MQTT_BROKER = "38.70.247.173"
-MQTT_USER = "Tanner23456"
-MQTT_PASSWORD = "Tn7281994!"
 
 CLIENT_ID = "intellidwell_SC"
 TOPIC_BASE = "home/sprinklers/"
 
-client = MQTTClient(CLIENT_ID, MQTT_BROKER, user=MQTT_USER, password=MQTT_PASSWORD, keepalive=60)
+client = MQTTClient(CLIENT_ID, MQTT_BROKER, user=MQTT_USER, password=MQTT_PASSWORD, keepalive=0)
 client.set_last_will(f"{TOPIC_BASE}status", "Offline", retain=True)
 
 LOG_FILE = 'logs.txt'
 LOG_MAX_LINES = 25  # Keep only the last 25 lines of logs
 MAX_RECONNECT_ATTEMPTS = 10  # Maximum number of reconnection attempts
+
+#WIFI and MQTT Credentials
+
+def load_settings():
+    try:
+        with open('settings.json', 'r') as f:
+            return json.load(f)
+    except OSError:
+        # Default settings if file does not exist
+        return {
+            "ssid": "",
+            "wifi_password": "",
+            "mqtt_server": "",
+            "mqtt_username": "",
+            "mqtt_password": ""
+        }
+
+def save_settings(settings):
+    if settings is None or not isinstance(settings, dict):
+        raise ValueError("Invalid settings format. Expected a dictionary.")
+    try:
+        with open('settings.json', 'w') as f:
+            ujson.dump(settings, f)
+        log_message("Settings saved successfully.")
+    except Exception as e:
+        log_message(f"Error saving settings: {e}")
+
+
+
 
 def log_message(message):
     current_time = time.localtime()
@@ -162,7 +223,7 @@ async def reconnect():
 # New helper to monitor memory usage
 def monitor_memory():
     free_memory = gc.mem_free()
-    log_message(f"Free memory: {free_memory}")
+    #log_message(f"Free memory: {free_memory}")
     if free_memory < 10000:  # Set a threshold that you feel is safe
         log_message("Low memory warning!")
         gc.collect()
@@ -227,6 +288,23 @@ def toggle_relay(request, pin, state):
 @app.route('/')
 def index(request):
     return send_file('index.html')
+
+@app.route('/settings')
+def settings(request):
+    return send_file('settings.html')
+
+@app.route('/save-settings', methods=['POST'])
+def save_settings_route(request):
+    settings = request.json
+    if settings is None:
+        return 'Invalid settings data', 400  # Respond with an error if no data is received
+    try:
+        save_settings(settings)
+        return 'Settings saved successfully', 200
+    except ValueError as e:
+        log_message(f"Error saving settings: {e}")
+        return 'Failed to save settings', 500
+
 
 @app.route('/get-relay-states')
 def get_relay_states(request):
@@ -519,6 +597,8 @@ def run_server():
         
         
 async def main():
+    if MQTT == 0:
+        await main_without_mqtt()
     try:
         disconnect_from_wifi()
         await connect_to_wifi()
@@ -573,50 +653,3 @@ except Exception as e:
             asyncio.run(main_without_mqtt_or_wifi())
         except Exception as e:
             log_message(f"Serious error in final recovery: {e}")
-
-# async def main():
-#     try:
-#         await connect_to_wifi()  # Try to connect to Wi-Fi first
-#         await connect_mqtt()  # Try to connect to MQTT once Wi-Fi is established
-# 
-#         # Start the Microdot server and other tasks only after successful connections
-#         start_new_thread(run_server, ())
-#         
-#         await asyncio.gather(
-#             sync_time(),
-#             check_schedules(),
-#             check_messages()
-#         )
-#         
-#     except Exception as e:
-#         log_message(f"Error in main loop: {e}")
-#         # Retry without MQTT first, and as a last resort, enter AP mode
-#         await main_without_mqtt()
-# 
-# 
-# async def main_without_mqtt():
-#     global MQTT
-#     MQTT = 0
-#     try:
-#         await connect_to_wifi()  # Reconnect to Wi-Fi, but skip MQTT
-#         start_new_thread(run_server, ())  # Start the server even without MQTT
-# 
-#         await asyncio.gather(
-#             check_schedules(),
-#             run_server()
-#         )
-# 
-#     except Exception as e:
-#         log_message(f"Error found again. Entering AP mode as a last resort: {e}")
-#         await enter_ap_mode_after_failures()  # Delay entering AP mode until all retries are exhausted
-# 
-# 
-# async def enter_ap_mode_after_failures():
-#     log_message("Attempting last recovery before entering AP mode.")
-#     await connect_to_wifi()  # Try Wi-Fi one last time
-# 
-#     if wifi.isconnected():
-#         log_message("Recovered connection without entering AP mode.")
-#     else:
-#         log_message("All recovery attempts failed. Entering AP mode.")
-#         enter_AP_mode()
