@@ -2,212 +2,107 @@
 <html lang="en">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Intellidwell Sprinkler Controller</title>
+<title>Settings</title>
 <style>
-body {
-  background-color: #333;
-  color: white;
-  font-family: Arial, sans-serif;
-  padding: 20px;
-  position: relative;
-}
-h1 {
-  color: #FFD700;
-}
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;  /* Retain original fixed width */
-  height: 34px;
-  margin: 10px;
-  vertical-align: middle; /* Ensure vertical alignment with text */
-}
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: .4s;
-  border-radius: 34px;
-}
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: .4s;
-  border-radius: 50%;
-}
-input:checked + .slider {
-  background-color: #2196F3;
-}
-input:checked + .slider:before {
-  transform: translateX(26px);
-}
-button {
-  background-color: #2196F3;
-  border: none;
-  color: white;
-  padding: 10px 20px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 12px;
-}
-button_red {
-  background-color: #FF0000;
-  border: none;
-  color: white;
-  padding: 10px 20px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 12px;
-}
-}
-.logs-button {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background-color: #2196F3;
-  border: none;
-  color: white;
-  padding: 10px;
-  cursor: pointer;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.logs-button svg {
-  width: 24px;
-  height: 24px;
-  fill: white;
-}
-@media (max-width: 600px) {
-  body {
-    padding: 5px;
-  }
-  .switch {
-    margin: 5px 0; /* Adjust margins for mobile */
-  }
-  button {
-    width: 100%;
-    padding: 12px;
-  }
-  .logs-button {
-    top: 10px;
-    right: 10px;
-    font-size: 20px;
-  }
+    body {
+        background-color: #333;
+        color: white;
+        font-family: Arial, sans-serif;
+        padding: 20px;
+    }
+    label, input {
+        margin-bottom: 10px;
+    }
+    .disabled {
+        background-color: #555;
+    }
+    .styled-button {
+      background-color: #2196F3;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 10px 0;
+      cursor: pointer;
+      border-radius: 12px;
+      width: 100%;  /* Full-width button */
+    }
+
+    .styled-button:hover {
+      background-color: #1e88e5;  /* Darker color on hover */
+    }
 </style>
 </head>
 <body>
-<h1>Intellidwell Sprinkler Controller</h1>
+<h1>Settings</h1>
 
-<div>
-  <label class="switch">
-    <input type="checkbox" onchange="toggleRelay(this, 0)" data-index="0">
-    <span class="slider"></span>
-  </label> Zone 1<br>
-  <label class="switch">
-    <input type="checkbox" onchange="toggleRelay(this, 1)" data-index="1">
-    <span class="slider"></span>
-  </label> Zone 2<br>
-  <label class="switch">
-    <input type="checkbox" onchange="toggleRelay(this, 2)" data-index="2">
-    <span class="slider"></span>
-  </label> Zone 3<br>
-  <label class="switch">
-    <input type="checkbox" onchange="toggleRelay(this, 3)" data-index="3">
-    <span class="slider"></span>
-  </label> Zone 4<br>
-  <label class="switch">
-    <input type="checkbox" onchange="toggleRelay(this, 4)" data-index="4">
-    <span class="slider"></span>
-  </label> Zone 5<br>
-  <label class="switch">
-    <input type="checkbox" onchange="toggleRelay(this, 5)" data-index="5">
-    <span class="slider"></span>
-  </label> Zone 6<br>
-  <label class="switch">
-    <input type="checkbox" onchange="toggleRelay(this, 6)" data-index="6">
-    <span class="slider"></span>
-  </label> Zone 7<br>
-  <label class="switch">
-    <input type="checkbox" onchange="toggleRelay(this, 7)" data-index="7">
-    <span class="slider"></span>
-  </label> Zone 8<br>
-  <label class="switch">
-    <input type="checkbox" onchange="toggleRelay(this, 8)" data-index="8">
-    <span class="slider"></span>
-  </label> Zone 9<br>
-  <label class="switch">
-    <input type="checkbox" onchange="toggleRelay(this, 9)" data-index="9">
-    <span class="slider"></span>
-  </label> Zone 10<br>
-</div>
-<button type="button" onclick="window.location.href='/scheduler'">Scheduler</button>
-<div>
-<button class="logs-button" onclick="window.location.href='/logs-page'">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 2h14a2 2 0 012 2v16a2 2 0 01-2 2H3a2 2 0 01-2-2V4a2 2 0 012-2zm0 2v16h14V4H3zm2 2h2v12H5V6zm4 0h2v12H9V6zm4 0h2v12h-2V6z"/></svg>
-</button>
-<button type="button" onclick="window.location.href='/settings'">Settings</button>
+<form id="settingsForm">
+    <label for="ssid">Wi-Fi SSID:</label><br>
+    <input type="text" id="ssid" name="ssid"><br>
 
-<button_red type="button_red" onclick="restartDevice()">Restart Device</button_red>
-</div>
+    <label for="wifi_password">Wi-Fi Password:</label><br>
+    <input type="password" id="wifi_password" name="wifi_password"><br><br>
+
+    <label for="enable_mqtt">Enable MQTT:</label>
+    <input type="checkbox" id="enable_mqtt" name="mqtt_enabled" onclick="toggleMQTTFields()"><br><br>
+
+    <fieldset id="mqtt_fields" disabled>
+        <label for="mqtt_server">MQTT Server IP:</label><br>
+        <input type="text" id="mqtt_server" name="mqtt_server"><br>
+
+        <label for="mqtt_username">MQTT Username:</label><br>
+        <input type="text" id="mqtt_username" name="mqtt_username"><br>
+
+        <label for="mqtt_password">MQTT Password:</label><br>
+        <input type="password" id="mqtt_password" name="mqtt_password"><br><br>
+    </fieldset>
+
+    <button type="button" class="styled-button" onclick="saveSettings()">Save Settings</button>
+</form>
+
 <script>
-function updateSwitches() {
-    fetch('/get-relay-states')
-    .then(response => response.json())
-    .then(states => {
-        states.forEach((state, index) => {
-            const switchElement = document.querySelector(`input[type="checkbox"][data-index="${index}"]`);
-            if (switchElement) {
-                const currentState = (state === 0);
-                if (switchElement.checked !== currentState) {
-                    switchElement.checked = currentState;
-                }
-            }
-        });
+function toggleMQTTFields() {
+    const mqttEnabled = document.getElementById('enable_mqtt').checked;
+    const mqttFields = document.getElementById('mqtt_fields');
+    mqttFields.disabled = !mqttEnabled;
+}
+
+function saveSettings() {
+    const formData = new FormData(document.getElementById('settingsForm'));
+    const jsonData = {};
+    formData.forEach((value, key) => {
+        jsonData[key] = value;
+    });
+
+    fetch('/save-settings', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(jsonData)
     })
-    .catch(error => console.error('Error fetching relay states:', error));
-}
-
-// Call updateSwitches every 500 milliseconds
-setInterval(updateSwitches, 2000);
-
-function toggleRelay(element, pin) {
-    const state = element.checked ? 'on' : 'off';
-    fetch(`/relay/${pin}/${state}`)
-    .then(response => response.text())
-    .then(data => console.log(data));
-}
-
-function restartDevice() {
-    fetch('/restart', { method: 'POST' })
-    .then(response => response.text())
-    .then(data => console.log(data))
-    .catch(error => console.error('Error restarting device:', error));
+    .then(response => {
+        if (response.ok) {
+            alert('Settings saved successfully! The device will restart now.');
+            fetch('/restart', { method: 'POST' })
+                .then(restartResponse => {
+                    if (restartResponse.ok) {
+                        console.log('Device restarting...');
+                    } else {
+                        alert('Failed to restart device.');
+                    }
+                })
+                .catch(error => console.error('Error restarting device:', error));
+        } else {
+            alert('Failed to save settings.');
+        }
+    })
+    .catch(error => console.error('Error saving settings:', error));
 }
 </script>
+
 </body>
 </html>
-
