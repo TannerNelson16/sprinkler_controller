@@ -47,6 +47,8 @@ Once this is complete, save the file and run the following commands:
 pip install adafruit-ampy
 ampy --port /dev/ttyUSB0 put index.html
 ampy --port /dev/ttyUSB0 put scheduler.html
+ampy --port /dev/ttyUSB0 put logs.html
+ampy --port /dev/ttyUSB0 put settings.html
 ampy --port /dev/ttyUSB0  put microdot.py
 ampy --port /dev/ttyUSB0  put microdot_asyncio.py
 ampy --port /dev/ttyUSB0  put controller.py /main.py
