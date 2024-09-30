@@ -510,7 +510,7 @@ def enter_AP_mode():
         
         ap = network.WLAN(network.AP_IF)
         ap.active(True)
-        ap.config(essid=ap_ssid, password=ap_password)
+        ap.config(essid=ap_ssid, password=ap_password,authmode=3)
 
         log_message(f"Configuration mode activated. Connect to AP: {ap_ssid} with password:{ap_password}")
         log_message("Visit http://192.168.4.1 in your web browser to configure.")
