@@ -16,6 +16,8 @@ Web UI:
 <p float="left">
   <img src="attachments/sprinkler_controller_main.png" width="400"> 
   <img src="attachments/sprinkler_controller_scheduler.png" width="400">
+  <img src="attachments/sprinkler_controller_logs.png" width="400"> 
+  <img src="attachments/sprinkler_controller_settings.png" width="400"> 
 
 </p>
 
