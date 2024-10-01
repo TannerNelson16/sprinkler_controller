@@ -70,6 +70,7 @@ Tablet Cover: https://a360.co/4asd20F
 Assembly:
 -
 <p float="left">
+  <img src="attachments/pinout.png" width="1000"> 
   <img src="attachments/assembly_1.jpg" width="500"> 
   <img src="attachments/assembly_2.jpg" width="500">
 
