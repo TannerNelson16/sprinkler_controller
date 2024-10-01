@@ -79,3 +79,5 @@ Assembly:
 In The Works:
 -
 I'm currently building a PCB to provide a more clean version of what's pictured above. See the "PCB files" folder if interested. Will update when complete and tested.
+<p float="left">
+  <img src="attachments/Sprinkler_Controller_PCB.png" width="1000"> 
