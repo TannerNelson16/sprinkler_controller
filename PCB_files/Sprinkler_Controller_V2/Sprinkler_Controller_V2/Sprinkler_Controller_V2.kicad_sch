@@ -8955,7 +8955,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2200uF"
+		(property "Value" "1000uF"
 			(at 46.482 26.924 0)
 			(effects
 				(font
@@ -9024,7 +9024,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2200uF"
+		(property "Value" "1000uF"
 			(at 38.608 26.416 0)
 			(effects
 				(font

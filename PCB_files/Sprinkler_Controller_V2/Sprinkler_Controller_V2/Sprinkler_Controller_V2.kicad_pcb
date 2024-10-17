@@ -11130,7 +11130,7 @@
 				)
 			)
 		)
-		(property "Value" "2200uF"
+		(property "Value" "1000uF"
 			(at 0.112755 3.6 90)
 			(layer "F.Fab")
 			(uuid "d17e5970-4805-4997-91ad-40db22aa70c9")
@@ -14675,7 +14675,7 @@
 				)
 			)
 		)
-		(property "Value" "2200uF"
+		(property "Value" "1000uF"
 			(at 3.75 9.25 90)
 			(layer "F.Fab")
 			(uuid "97a688f1-e7cf-4fcd-913d-e22264c51cb0")
@@ -21967,7 +21967,7 @@
 		(polygon
 			(pts
 				(xy 144 104.2) (xy 144 102) (xy 144.8 100.2) (xy 144.8 95.4) (xy 148.6 95.4) (xy 148.6 97.8) (xy 147 97.8)
-				(xy 147 99.8) (xy 147 99.8) (xy 146 102) (xy 146 104.2)
+				(xy 147 99.8) (xy 146 102) (xy 146 104.2)
 			)
 		)
 		(filled_polygon
