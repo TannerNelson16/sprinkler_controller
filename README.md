@@ -78,7 +78,7 @@ Assembly:
 
 </p>
 
-In The Works:
--The PCB as been tested and is fully functional. Feel free to utilize these designs! See the "PCB files" folder if interested. 
+Custom PCB:
+- The PCB haas been tested and is fully functional. Feel free to utilize these designs! See the "PCB files" folder if interested. 
 <p float="left">
   <img src="attachments/Sprinkler_Controller_PCB.png" width="1000"> 
