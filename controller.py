@@ -61,7 +61,7 @@ RELAY_PINS = [13, 21, 14, 27, 26, 25, 33, 32, 19, 18]
 relays = [Pin(pin, Pin.OUT) for pin in RELAY_PINS]
 wifi = network.WLAN(network.STA_IF)
 for relay in relays:
-    relay.value(1)
+    relay.value(0)
 
 
 CLIENT_ID = "intellidwell_SC"
@@ -142,10 +142,10 @@ def command_callback(topic, msg):
     if len(parts) == 4 and parts[0] == "cmnd" and parts[1] == "zone" and parts[3] == "power":
         pin = int(parts[2])
         if msg == "ON":
-            relays[pin].value(0)
+            relays[pin].value(1)
             log_message(f"Relay {pin} turned ON via MQTT")
         elif msg == "OFF":
-            relays[pin].value(1)
+            relays[pin].value(0)
             log_message(f"Relay {pin} turned OFF via MQTT")
         publish_relay_status(client, pin, relays[pin].value())
     elif len(parts) == 4 and parts[1] == "zone" and parts[3] == "schedule":
@@ -275,10 +275,10 @@ def toggle_relay(request, pin, state):
     pin = int(pin)
     if 0 <= pin < len(relays):
         if state == 'on':
-            relays[pin].value(0)
+            relays[pin].value(1)
             log_message(f"Relay {pin+1} turned on manually.")
         elif state == 'off':
-            relays[pin].value(1)
+            relays[pin].value(0)
             log_message(f"Relay {pin+1} turned off manually.")
         else:
             return 'Invalid state', 400
@@ -437,12 +437,12 @@ async def check_schedules():
             for pin, schedule in enumerate(schedules):
                 if schedule.get('enabled', False):
                     if current_day in schedule.get('days', []) and schedule.get('onTime') == current_time:
-                        relays[pin].value(0)
+                        relays[pin].value(1)
                         if MQTT == 1:
                             publish_relay_status(client, pin, relays[pin].value())
                         log_message(f"Relay {pin+1} turned on at {current_time}")
                     elif schedule.get('offTime') == current_time:
-                        relays[pin].value(1)
+                        relays[pin].value(0)
                         if MQTT == 1:
                             publish_relay_status(client, pin, relays[pin].value())
                         log_message(f"Relay {pin+1} turned off at {current_time}")
@@ -482,7 +482,7 @@ def publish_discovery(client):
 def publish_relay_status(client, relay, status):
     try:
         topic = f"stat/zone/{relay}/state"
-        payload = "OFF" if status else "ON"
+        payload = "ON" if status else "OFF"
         client.publish(topic, payload)
         log_message(f"Published relay status for relay {relay}: {payload}")
     except Exception as e:

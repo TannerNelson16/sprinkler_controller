@@ -181,7 +181,7 @@ function updateSwitches() {
         states.forEach((state, index) => {
             const switchElement = document.querySelector(`input[type="checkbox"][data-index="${index}"]`);
             if (switchElement) {
-                const currentState = (state === 0);
+                const currentState = (state === 1);
                 if (switchElement.checked !== currentState) {
                     switchElement.checked = currentState;
                 }
