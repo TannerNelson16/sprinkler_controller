@@ -370,48 +370,45 @@ except (OSError, ValueError):
     log_message("Created new schedules.json file")
 
 async def connect_to_wifi():
-    max_wifi_attempts = 10  # Increase the number of Wi-Fi connection attempts
-    retry_delay = 2  # Start with a 2-second delay
+    max_wifi_attempts = 10
+    retry_delay = 2
     attempt_count = 0
 
     while attempt_count < max_wifi_attempts:
         try:
-            # Disable AP mode if it's running
             ap = network.WLAN(network.AP_IF)
             ap.active(False)
-            
-            # Activate Wi-Fi interface
+
             wifi = network.WLAN(network.STA_IF)
             wifi.active(True)
-            wifi.config(pm=0)  # Disable power-saving mode to maintain a stronger connection
+            wifi.config(pm=0)
+
+            # Set a fixed mDNS hostname to "sprinklers"
+            wifi.config(dhcp_hostname="sprinklers")
+
             wifi.connect(SSID, PASSWORD)
 
-            # Retry Wi-Fi connection
-            #count = 0
-            #max_retries = 40  # Retry connecting to Wi-Fi up to 40 times before increasing the delay
-            #while not wifi.isconnected() and count < max_retries:
-             #   count += 1
-             #   log_message(f"Attempt {attempt_count + 1}, Wi-Fi connection retry {count}...")
-             #   await asyncio.sleep(1)
-
             if wifi.isconnected():
-                log_message('Connected to Wi-Fi')
-                return  # Successfully connected, exit function
+                log_message('Connected to Wi-Fi as sprinklers.local')
+
+                # Print the network configuration for debugging
+                print('Wifi connected as sprinklers.local, net={}, gw={}, dns={}'.format(*wifi.ifconfig()))
+
+                return  # Successfully connected
 
             else:
                 log_message(f"Wi-Fi connection attempt {attempt_count + 1} failed. Retrying...")
                 attempt_count += 1
                 await asyncio.sleep(retry_delay)
-                retry_delay = min(retry_delay * 2, 60)  # Exponential backoff up to 60 seconds
+                retry_delay = min(retry_delay * 2, 60)
 
         except Exception as e:
             log_message(f"Exception during Wi-Fi connection: {e}")
             attempt_count += 1
             await asyncio.sleep(retry_delay)
 
-    # Exhausted all Wi-Fi connection attempts
     log_message('Failed to connect to Wi-Fi after all attempts. Entering AP mode as a last resort.')
-    enter_AP_mode()
+    enter_AP_mode() 
 
 async def sync_time():
     timezone_offset = -6  # Adjust this to your timezone offset from UTC
