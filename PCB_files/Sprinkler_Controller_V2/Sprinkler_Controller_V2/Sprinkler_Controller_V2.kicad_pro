@@ -487,7 +487,7 @@
       "plot": "Sprinkler_Controller_V2/",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "Sprinkler_Controller_V2.step",
       "svg": "",
       "vrml": ""
     },
