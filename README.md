@@ -56,7 +56,7 @@ ampy --port /dev/ttyUSB0  put controller.py /main.py
 ```
 Reboot and connect to the "intellidwellSC" SSID with password "Sprinkler12345" from any device. In a browser type in 192.168.4.1 to access the sprinkler controller UI.
 
-To connect to a Wifi Network navigate to "Settings" on the main page and enter in your WiFi credentials. You can also input your MQTT credentials here if you wish. When the device is rebooted, you can access the UI from the associated IP address on your network, or from your MQTT integration system of choice.
+To connect to a Wifi Network navigate to "Settings" on the main page and enter in your WiFi credentials. You can also input your MQTT credentials here if you wish. When the device is rebooted, you can access the UI from the hostname http://sprinklers.local on your network, or from your MQTT integration system of choice.
 
 NOTE: If the network is unavailable, the ESP32 will first try to connect without the MQTT integration. If the network is still causing errors, the ESP32 will resume AP mode to allow for control of the sprinkler system. 
 
