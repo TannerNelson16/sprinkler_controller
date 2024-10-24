@@ -421,7 +421,7 @@ async def sync_time():
             log_message(f"Time adjusted to local timezone: {tm}")
         except Exception as e:
             log_message(f"Failed to sync time: {e}")
-        await asyncio.sleep(3600)  # Sync time every hour
+        await asyncio.sleep(86400)  # Sync time every day
         gc.collect()  # Run garbage collection
 
 async def check_schedules():
@@ -438,7 +438,7 @@ async def check_schedules():
                         if MQTT == 1:
                             publish_relay_status(client, pin, relays[pin].value())
                         log_message(f"Relay {pin+1} turned on at {current_time}")
-                    elif schedule.get('offTime') == current_time:
+                    elif current_day in schedule.get('days', []) and schedule.get('offTime') == current_time:
                         relays[pin].value(0)
                         if MQTT == 1:
                             publish_relay_status(client, pin, relays[pin].value())

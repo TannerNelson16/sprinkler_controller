@@ -481,15 +481,15 @@
   },
   "pcbnew": {
     "last_paths": {
-      "gencad": "",
+      "gencad": "Sprinkler_Controller_V2.cad",
       "idf": "",
       "netlist": "",
       "plot": "Sprinkler_Controller_V2/",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "Sprinkler_Controller_V2.step",
-      "svg": "",
-      "vrml": ""
+      "svg": "Sprinkler_Controller_V2/",
+      "vrml": "Sprinkler_Controller_V2.wrl"
     },
     "page_layout_descr_file": ""
   },
