@@ -70,6 +70,7 @@ Tablet Cover: https://a360.co/4asd20F
 
 Assembly:
 -
+**Option 1**
 (PLEASE NOTE: polarity has been changed in the latest version of code for the new PCB design. No longer compatible with this relay board)
 <p float="left">
   <img src="attachments/pinout.png" width="1000"> 
@@ -78,6 +79,7 @@ Assembly:
 
 </p>
 
+**Option 2** (Aligns with current code, preferred)
 Custom PCB:
 - The PCB haas been tested and is fully functional. Feel free to utilize these designs! See the "PCB files" folder if interested. 
 <p float="left">
