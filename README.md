@@ -80,6 +80,7 @@ Assembly:
 </p>
 
 **Option 2** (Aligns with current code, preferred)
+
 Custom PCB:
 - The PCB haas been tested and is fully functional. Feel free to utilize these designs! See the "PCB files" folder if interested. 
 <p float="left">
