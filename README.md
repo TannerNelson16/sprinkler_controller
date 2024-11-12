@@ -88,3 +88,11 @@ Custom PCB:
 *PLEASE NOTE* enclosure untested. Will print soon. 
 <p float="left">
   <img src="attachments/V2_enclosure.png" width="1000"> 
+
+
+Support This Project
+-
+
+If you like this project, consider supporting it with a donation!
+
+[![Donate via Stripe](https://img.shields.io/badge/Donate-Stripe-blue?style=flat&logo=stripe)](https://buy.stripe.com/6oEdU3dWS19C556dQQ)
