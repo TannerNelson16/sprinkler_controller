@@ -73,9 +73,9 @@ PCB:
 Final Product Images:
 -
 <p float="left">
-  <img src="attachments/SC_open.png" width="1000"> 
+  <img src="attachments/SC_open.jpg" width="1000"> 
 <p float="left">
-  <img src="attachments/SC_closed.png" width="1000"> 
+  <img src="attachments/SC_closed.jpg" width="1000"> 
 
 
 
