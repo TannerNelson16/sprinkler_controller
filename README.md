@@ -5,12 +5,10 @@ Smart irrigation controllers are overpriced and lack customizability so I set ou
 Components used:
 -
 - ESP32 dev board - https://www.amazon.com/gp/product/B0C7C2HQ7P/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1
-- 16 channel relay board - https://www.amazon.com/gp/product/B07Y2X4F77/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1
-  (PLEASE NOTE: polarity has been changed in the latest version of code for the new PCB design. No longer compatible with this relay board)
-- Step Down Buck converter - https://www.amazon.com/gp/product/B08B3T9DX4/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1
-- Amazon Fire HD 8" Tablet - https://www.amazon.com/gp/product/B07952VWF2/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1 
+- Custom PCB
 - 3d printed container
 - 24v transformer
+- Hardware
 
 Web UI:
 -
@@ -62,26 +60,28 @@ NOTE: If the network is unavailable, the ESP32 will first try to connect without
 
 Enclosure:
 -
-Main Box: https://a360.co/3JPQwDQ
+<p float="left">
+  <img src="attachments/V2_enclosure.png" width="1000"> 
 
-Tablet Tray: https://a360.co/3wzbLN
-
-Tablet Cover: https://a360.co/4asd20F
 
 Assembly:
 -
-(PLEASE NOTE: polarity has been changed in the latest version of code for the new PCB design. No longer compatible with this relay board)
-<p float="left">
-  <img src="attachments/pinout.png" width="1000"> 
-  <img src="attachments/assembly_1.jpg" width="500"> 
-  <img src="attachments/assembly_2.jpg" width="500">
-
-</p>
-
-Custom PCB:
+PCB:
 - The PCB haas been tested and is fully functional. Feel free to utilize these designs! See the "PCB files" folder if interested. 
 <p float="left">
   <img src="attachments/Sprinkler_Controller_PCB.png" width="1000">
-*PLEASE NOTE* enclosure untested. Will print soon. 
+Final Product Images:
+-
 <p float="left">
-  <img src="attachments/V2_enclosure.png" width="1000"> 
+  <img src="attachments/SC_open.jpg" width="1000"> 
+<p float="left">
+  <img src="attachments/SC_closed.jpg" width="1000"> 
+
+
+
+Support This Project
+-
+
+If you like this project, consider supporting it with a donation!
+
+[![Donate via Stripe](https://img.shields.io/badge/Donate-Stripe-blue?style=flat&logo=stripe)](https://buy.stripe.com/6oEdU3dWS19C556dQQ)
