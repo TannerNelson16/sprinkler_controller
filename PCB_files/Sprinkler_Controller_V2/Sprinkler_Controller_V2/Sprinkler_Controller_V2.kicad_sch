@@ -6503,7 +6503,6 @@
 	)
 	(label "Vin"
 		(at 60.96 22.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8993,7 +8992,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D16.0mm_P7.50mm"
+		(property "Footprint" "footprints:PCAP_12_5x25-THRU-ELECT_NCA"
 			(at 68.58 27.94 0)
 			(effects
 				(font
@@ -9062,7 +9061,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D16.0mm_P7.50mm"
+		(property "Footprint" "footprints:PCAP_12_5x25-THRU-ELECT_NCA"
 			(at 60.96 27.94 0)
 			(effects
 				(font
