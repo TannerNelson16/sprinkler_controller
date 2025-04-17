@@ -1,6 +1,6 @@
 Introduction:
 -
-Smart irrigation controllers are overpriced and lack customizability so I set out to develop a simple and easy to use solution that is also robust and reliable.
+Smart irrigation controllers are overpriced and lack customizability so I set out to develop a simple and easy to use solution that is also robust and reliable. The intellidwell sprinkler controller uses custom micropython firmware developed for the ESP32. A localized server that runs right on the microcontroller allows for scheduling, smart phone control, and integration with smart home systems via MQTT. Solid state relays provide extrememely reliable switching of 24VAC solenoid sprinkler valves. A custom 24VAC to 5VDC (variable via a potentiometer) converter allows the logic to be powered from the same source as the sprinkler valve power.
 
 Components used:
 -
