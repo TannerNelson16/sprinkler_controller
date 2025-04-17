@@ -1,4 +1,11 @@
-24639784316400965
+24646691374314361
+54_00347
+TENSILITY_54-00347
+
+
+0
+3
+3
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -92497,6 +92504,13 @@ Logo WEEE
 0
 0
 0
+TBP02R1_381_03BE
+CUI_TBP02R1-381-03BE
+
+
+0
+3
+3
 TerminalBlock
 TerminalBlock_Altech_AK300-2_P5.00mm
 Altech AK300 terminal block, pitch 5.0mm, 45 degree angled, see http://www.mouser.com/ds/2/16/PCBMETRC-24178.pdf
@@ -99126,3 +99140,17 @@ Varistor VF
 0
 2
 2
+footprints
+PCAP_12_5x25-THRU-ELECT_NCA
+
+UVK1H102MHD 
+0
+2
+2
+xiao ESP32C3_PCB
+MOUDLE14P-SMD-2.54-21X17.8MM
+
+
+0
+14
+14
