@@ -6,6 +6,7 @@ Components used:
 -
 - ESP32 dev board - https://www.amazon.com/gp/product/B0C7C2HQ7P/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1
 - Custom PCB
+- PCB parts - https://www.digikey.com/en/mylists/list/P86LUORYGY
 - 3d printed container
 - 24v transformer
 - Hardware
