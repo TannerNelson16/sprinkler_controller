@@ -68,7 +68,10 @@ Enclosure:
 Assembly:
 -
 PCB:
-- The PCB haas been tested and is fully functional. Feel free to utilize these designs! See the "PCB files" folder if interested. 
+- The PCB haas been tested and is fully functional. Feel free to utilize these designs! See the "PCB files" folder if interested.
+- Download the zipped folder here: https://github.com/TannerNelson16/sprinkler_controller/blob/master/PCB_files/Sprinkler_Controller_V2/Sprinkler_Controller_V2/Sprinkler_Controller_V2.zip
+- Upload the folder to jlcpcb.com or your chosen pcb manufacturer
+- Purchase items from digikey to populate board: https://www.digikey.com/en/mylists/list/P86LUORYGY
 <p float="left">
   <img src="attachments/Sprinkler_Controller_PCB.png" width="1000">
 Final Product Images:
