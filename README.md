@@ -57,7 +57,7 @@ ampy --port /dev/ttyUSB0  put controller.py /main.py
 ```
 Reboot and connect to the "intellidwellSC" SSID with password "Sprinkler12345" from any device. In a browser type in 192.168.4.1 to access the sprinkler controller UI.
 
-To connect to a Wifi Network navigate to "Settings" on the main page and enter in your WiFi credentials. You can also input your MQTT credentials here if you wish. When the device is rebooted, you can access the UI from the hostname http://sprinklers.local on your network, or from your MQTT integration system of choice.
+To connect to a Wifi Network navigate to "Settings" on the main page and enter in your WiFi credentials. You can also input your MQTT credentials here if you wish. When the device is rebooted, you can access the UI from the hostname http://sprinklers.local on your network, the IP address of the device, or from your homeassitant instance via the MQTT integration.
 
 NOTE: If the network is unavailable, the ESP32 will first try to connect without the MQTT integration. If the network is still causing errors, the ESP32 will resume AP mode to allow for control of the sprinkler system. 
 
@@ -70,10 +70,11 @@ Enclosure:
 Assembly:
 -
 PCB:
-- The PCB haas been tested and is fully functional. Feel free to utilize these designs! See the "PCB files" folder if interested.
+- The PCB has been tested and is fully functional.
 - Download the zipped folder here: https://github.com/TannerNelson16/sprinkler_controller/blob/master/PCB_files/Sprinkler_Controller_V2/Sprinkler_Controller_V2/Sprinkler_Controller_V2.zip
 - Upload the folder to jlcpcb.com or your chosen pcb manufacturer
 - Purchase items from digikey to populate board: https://www.digikey.com/en/mylists/list/P86LUORYGY
+- Rocker switches on amazon, if out of stock at digikey: https://a.co/d/f25Jjgr
 <p float="left">
   <img src="attachments/Sprinkler_Controller_PCB.png" width="1000">
 Final Product Images:
