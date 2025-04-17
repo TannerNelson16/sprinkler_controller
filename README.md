@@ -5,11 +5,13 @@ Smart irrigation controllers are overpriced and lack customizability so I set ou
 Components used:
 -
 - ESP32 dev board - https://www.amazon.com/gp/product/B0C7C2HQ7P/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1
-- Custom PCB
+- Custom PCB - https://github.com/TannerNelson16/sprinkler_controller/blob/master/PCB_files/Sprinkler_Controller_V2/Sprinkler_Controller_V2/Sprinkler_Controller_V2.zip
 - PCB parts - https://www.digikey.com/en/mylists/list/P86LUORYGY
-- 3d printed container
-- 24v transformer
-- Hardware
+- 3d printed container - https://github.com/TannerNelson16/sprinkler_controller/tree/master/V2_Enclosure
+- 24v transformer - https://a.co/d/7ivDpOn
+- Hardware:
+  - https://a.co/d/18vTyet
+  - https://a.co/d/1JvqW7l
 
 Web UI:
 -
