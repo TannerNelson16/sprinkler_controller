@@ -75,6 +75,7 @@ PCB:
 - Upload the folder to jlcpcb.com or your chosen pcb manufacturer
 - Purchase items from digikey to populate board: https://www.digikey.com/en/mylists/list/P86LUORYGY
 - Rocker switches on amazon, if out of stock at digikey: https://a.co/d/f25Jjgr
+- Once assembled, and before installing the ESP32, adjust the potentiometer to ensure a 5VDC input to vin and gnd of the ESP32.
 <p float="left">
   <img src="attachments/Sprinkler_Controller_PCB.png" width="1000">
 Final Product Images:
