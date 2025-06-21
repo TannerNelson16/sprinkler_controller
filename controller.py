@@ -19,6 +19,9 @@ import usocket
 machine.sleep(0)       # Disable light sleep
 global MQTT
 
+timers = {}
+
+
 def load_settings():
     try:
         with open('settings.json', 'r') as f:
@@ -49,9 +52,9 @@ def load_settings():
     
 config = load_settings()
 
-# Example of using the configuration
-SSID = config['ssid']
-PASSWORD = config['wifi_password']
+
+SSID = 'MegaPixel' #config['ssid']
+PASSWORD = 'Tf2241994!' #config['wifi_password']
 MQTT_BROKER = config['mqtt_server']
 MQTT_USER = config['mqtt_username']
 MQTT_PASSWORD = config['mqtt_password']
@@ -355,9 +358,122 @@ def toggle_schedule(request, pin, status):
         return f"Schedule for Relay {pin+1} {'enabled' if status else 'disabled'}!"
     return 'Invalid pin or status', 400
 
+@app.route('/relay-timer/<pin>/<minutes>')
+def start_timer(request, pin, minutes):
+    try:
+        pin = int(pin)
+        minutes = int(minutes)
+
+        if 0 <= pin < len(relays) and minutes > 0:
+            relays[pin].value(1)
+            timers[pin] = {
+                'end_time': time.time() + minutes * 60
+            }
+            log_message(f"Zone {pin + 1} turned ON (timer set for {minutes} minutes).")
+            if MQTT == 1:
+                publish_relay_status(client, pin, 1)
+            return 'Timer started', 200
+
+        return 'Invalid input', 400
+    except Exception as e:
+        log_message(f"Error in /relay-timer route: {e}")
+        return 'Failed to start timer', 500
+
+@app.route('/timer-status')
+def timer_status(request):
+    try:
+        now = time.time()
+        status = {}
+
+        expired = []
+
+        for pin, data in list(timers.items()):  # safe iteration over changing dict
+            end_time = data['end_time']
+            remaining = int(end_time - now)
+
+            if remaining > 0:
+                status[str(pin)] = remaining
+            else:
+                relays[pin].value(0)
+                log_message(f"Zone {pin + 1} timer expired. Relay turned OFF.")
+                if MQTT == 1:
+                    publish_relay_status(client, pin, 0)
+                expired.append(pin)
+
+        # Remove expired timers
+        for pin in expired:
+            del timers[pin]
+
+        log_message(f"Timer status response: {status}")
+        return ujson.dumps(status), {'Content-Type': 'application/json'}
+
+    except Exception as e:
+        log_message(f"Error in /timer-status: {e}")
+        return '{}', 500
+
+
+@app.route('/cancel-timer/<pin>')
+def cancel_timer(request, pin):
+    try:
+        pin = int(pin)
+        if pin in timers:
+            del timers[pin]
+            relays[pin].value(0)
+            log_message(f"Manual timer canceled for Zone {pin + 1}. Relay turned OFF.")
+            if MQTT == 1:
+                publish_relay_status(client, pin, 0)
+        return 'Timer canceled', 200
+    except Exception as e:
+        log_message(f"Error in /cancel-timer route: {e}")
+        return 'Failed to cancel timer', 500
+
+
+@app.route('/relay/<int:pin>/<state>')
+async def relay_toggle(request, pin, state):
+    try:
+        if 0 <= pin < len(relays):
+            if state == 'on':
+                relays[pin].value(1)
+                log_message(f"Zone {pin + 1} manually turned ON.")
+                if MQTT == 1:
+                    publish_relay_status(client, pin, 1)
+            else:
+                relays[pin].value(0)
+                log_message(f"Zone {pin + 1} manually turned OFF.")
+                if MQTT == 1:
+                    publish_relay_status(client, pin, 0)
+            return 'OK', 200
+        return 'Invalid pin', 400
+    except Exception as e:
+        log_message(f"Error in /relay route: {e}")
+        return 'Error', 500
+
+@app.route('/set-rain-delay/<days>')
+def set_rain_delay(request, days):
+    try:
+        days = int(days)
+        with open("rain_delay.json", "w") as f:
+            ujson.dump({"days_remaining": days}, f)
+        log_message(f"Rain delay set for {days} days.")
+        return "Rain delay set", 200
+    except:
+        return "Invalid input", 400
+    
+@app.route('/get-rain-delay')
+def get_rain_delay(request):
+    try:
+        with open("rain_delay.json") as f:
+            data = ujson.load(f)
+        return ujson.dumps(data), {'Content-Type': 'application/json'}
+    except:
+        return ujson.dumps({"days_remaining": 0}), {'Content-Type': 'application/json'}
+
+
+
 @app.route('/get-schedules')
 def get_schedules(request):
     return ujson.dumps(schedules), {'Content-Type': 'application/json'}
+
 
 # Load or create a schedule store
 try:
@@ -425,30 +541,119 @@ async def sync_time():
         gc.collect()  # Run garbage collection
 
 async def check_schedules():
+    global timers
+    last_minute_check = -1
+
+    def get_rain_delay_days_remaining():
+        try:
+            with open("rain_delay.json") as f:
+                return int(ujson.load(f).get("days_remaining", 0))
+        except Exception as e:
+            log_message(f"Error reading rain delay: {e}")
+            return 0
+
+    def decrement_rain_delay():
+        try:
+            with open("rain_delay.json") as f:
+                delay_data = ujson.load(f)
+        except:
+            delay_data = {"days_remaining": 0}
+
+        remaining = max(0, int(delay_data.get("days_remaining", 0)) - 1)
+        with open("rain_delay.json", "w") as f:
+            ujson.dump({"days_remaining": remaining}, f)
+        log_message(f"Rain delay updated: {remaining} days remaining.")
+
+    last_checked_day = None  # So we only decrement once per new day
+
     while True:
         try:
             now = time.localtime()
-            current_time = f"{now[3]:02}:{now[4]:02}"
+            current_hour = now[3]
+            current_minute = now[4]
+            current_time = f"{current_hour:02}:{current_minute:02}"
             current_day = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][now[6]]
 
-            for pin, schedule in enumerate(schedules):
-                if schedule.get('enabled', False):
-                    if current_day in schedule.get('days', []) and schedule.get('onTime') == current_time:
-                        relays[pin].value(1)
-                        if MQTT == 1:
-                            publish_relay_status(client, pin, relays[pin].value())
-                        log_message(f"Relay {pin+1} turned on at {current_time}")
-                    elif current_day in schedule.get('days', []) and schedule.get('offTime') == current_time:
-                        relays[pin].value(0)
-                        if MQTT == 1:
-                            publish_relay_status(client, pin, relays[pin].value())
-                        log_message(f"Relay {pin+1} turned off at {current_time}")
-            await asyncio.sleep(60)  # Check every minute instead of every 10 seconds
-            monitor_memory()  # Monitor memory usage
+            # 🌧 Decrement rain delay once per day
+            today_date = now[2]
+            if today_date != last_checked_day:
+                decrement_rain_delay()
+                last_checked_day = today_date
+
+            rain_delay = get_rain_delay_days_remaining()
+
+            # 🕒 Run schedule logic once per minute
+            if current_minute != last_minute_check:
+                last_minute_check = current_minute
+
+                try:
+                    with open('schedules.json') as f:
+                        schedules = ujson.load(f)
+                except Exception as e:
+                    log_message(f"Failed to load schedule: {e}")
+                    schedules = []
+
+                
+                for pin, schedule in enumerate(schedules):
+                    if not schedule.get('enabled', False):
+                        continue
+
+                    days = schedule.get('days', [])
+                    on_time = schedule.get('onTime')
+                    off_time = schedule.get('offTime')
+
+                    if current_day in days:
+                        if current_time == on_time:
+                            if rain_delay > 0:
+                                log_message(f"Rain delay active — skipping schedules (days remaining: {rain_delay})")
+                            else:    
+                                relays[pin].value(1)
+                                timers[pin] = {
+                                'end_time': time.time() + 3600,  # fallback 1 hr
+                                'task': None
+                                }
+                                log_message(f"Relay {pin+1} turned ON at {current_time} (schedule).")
+                                if MQTT == 1:
+                                    publish_relay_status(client, pin, 1)
+
+                        elif current_time == off_time:
+                            if rain_delay > 0:
+                                log_message(f"Rain delay active — skipping schedules (days remaining: {rain_delay})")
+                            else: 
+                                relays[pin].value(0)
+                                if pin in timers:
+                                    del timers[pin]
+                                log_message(f"Relay {pin+1} turned OFF at {current_time} (schedule).")
+                                if MQTT == 1:
+                                    publish_relay_status(client, pin, 0)
+
+            # ⏳ Timer expiration logic (manual or scheduled)
+            current_epoch = time.time()
+            expired = []
+
+            for pin, data in list(timers.items()):
+                if current_epoch >= data['end_time']:
+                    relays[pin].value(0)
+                    log_message(f"Zone {pin+1} timer expired. Relay turned OFF.")
+                    if MQTT == 1:
+                        publish_relay_status(client, pin, 0)
+                    expired.append(pin)
+
+            for pin in expired:
+                del timers[pin]
+
+            monitor_memory()
+
         except Exception as e:
             log_message(f"Exception in check_schedules: {e}")
-            await asyncio.sleep(60)
-            gc.collect()  # Run garbage collection
+            gc.collect()
+
+        await asyncio.sleep(1)
+
+
+
+
+
 
 def publish_discovery(client):
     try:
@@ -627,10 +832,12 @@ async def main_without_mqtt():
     global MQTT
     MQTT = 0
     try:
+        disconnect_from_wifi()
         await connect_to_wifi()
+        start_new_thread(run_server, ())
         await asyncio.gather(
-            check_schedules(),
-            run_server()
+            #sync_time(),
+            check_schedules()
         )
     except Exception as e:
         log_message(f"Error found again. Restarting without MQTT or WIFI: {e}")

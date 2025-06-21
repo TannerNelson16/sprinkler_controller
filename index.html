@@ -126,51 +126,117 @@ button_red {
   <label class="switch">
     <input type="checkbox" onchange="toggleRelay(this, 0)" data-index="0">
     <span class="slider"></span>
-  </label> Zone 1<br>
+  </label> Zone 1
+    <input type="number" id="zone0-timer" placeholder="Min" style="width:60px;">
+    <button onclick="startTimer(0)">Start</button>
+    <button id="zone0-cancel" style="display:none;" onclick="cancelTimer(0)">Cancel</button>
+    <span id="zone0-countdown"></span><br>
+    
   <label class="switch">
     <input type="checkbox" onchange="toggleRelay(this, 1)" data-index="1">
     <span class="slider"></span>
-  </label> Zone 2<br>
+  </label> Zone 2
+    <input type="number" id="zone1-timer" placeholder="Min" style="width:60px;">
+    <button onclick="startTimer(1)">Start</button>
+    <button id="zone1-cancel" style="display:none;" onclick="cancelTimer(1)">Cancel</button>
+    <span id="zone1-countdown"></span><br>
+  
   <label class="switch">
     <input type="checkbox" onchange="toggleRelay(this, 2)" data-index="2">
     <span class="slider"></span>
-  </label> Zone 3<br>
+  </label> Zone 3
+    <input type="number" id="zone2-timer" placeholder="Min" style="width:60px;">
+    <button onclick="startTimer(2)">Start</button>
+    <button id="zone2-cancel" style="display:none;" onclick="cancelTimer(2)">Cancel</button>
+    <span id="zone2-countdown"></span><br>
+    
   <label class="switch">
     <input type="checkbox" onchange="toggleRelay(this, 3)" data-index="3">
     <span class="slider"></span>
-  </label> Zone 4<br>
+  </label> Zone 4
+    <input type="number" id="zone3-timer" placeholder="Min" style="width:60px;">
+    <button onclick="startTimer(3)">Start</button>
+    <button id="zone3-cancel" style="display:none;" onclick="cancelTimer(3)">Cancel</button>
+    <span id="zone3-countdown"></span><br>
+    
   <label class="switch">
     <input type="checkbox" onchange="toggleRelay(this, 4)" data-index="4">
     <span class="slider"></span>
-  </label> Zone 5<br>
+  </label> Zone 5
+    <input type="number" id="zone4-timer" placeholder="Min" style="width:60px;">
+    <button onclick="startTimer(4)">Start</button>
+    <button id="zone4-cancel" style="display:none;" onclick="cancelTimer(4)">Cancel</button>
+    <span id="zone4-countdown"></span><br>
+    
   <label class="switch">
     <input type="checkbox" onchange="toggleRelay(this, 5)" data-index="5">
     <span class="slider"></span>
-  </label> Zone 6<br>
+  </label> Zone 6
+    <input type="number" id="zone5-timer" placeholder="Min" style="width:60px;">
+    <button onclick="startTimer(5)">Start</button>
+    <button id="zone5-cancel" style="display:none;" onclick="cancelTimer(5)">Cancel</button>
+    <span id="zone5-countdown"></span><br>
+    
   <label class="switch">
     <input type="checkbox" onchange="toggleRelay(this, 6)" data-index="6">
     <span class="slider"></span>
-  </label> Zone 7<br>
+  </label> Zone 7
+    <input type="number" id="zone6-timer" placeholder="Min" style="width:60px;">
+    <button onclick="startTimer(6)">Start</button>
+    <button id="zone6-cancel" style="display:none;" onclick="cancelTimer(6)">Cancel</button>
+    <span id="zone6-countdown"></span><br>
+    
   <label class="switch">
     <input type="checkbox" onchange="toggleRelay(this, 7)" data-index="7">
     <span class="slider"></span>
-  </label> Zone 8<br>
+  </label> Zone 8
+    <input type="number" id="zone7-timer" placeholder="Min" style="width:60px;">
+    <button onclick="startTimer(7)">Start</button>
+    <button id="zone7-cancel" style="display:none;" onclick="cancelTimer(7)">Cancel</button>
+    <span id="zone7-countdown"></span><br>
+    
   <label class="switch">
     <input type="checkbox" onchange="toggleRelay(this, 8)" data-index="8">
     <span class="slider"></span>
-  </label> Zone 9<br>
+  </label> Zone 9
+    <input type="number" id="zone8-timer" placeholder="Min" style="width:60px;">
+    <button onclick="startTimer(8)">Start</button>
+    <button id="zone8-cancel" style="display:none;" onclick="cancelTimer(8)">Cancel</button>
+    <span id="zone8-countdown"></span><br>
+    
   <label class="switch">
     <input type="checkbox" onchange="toggleRelay(this, 9)" data-index="9">
     <span class="slider"></span>
-  </label> Zone 10<br>
+  </label> Zone 10
+    <input type="number" id="zone9-timer" placeholder="Min" style="width:60px;">
+    <button onclick="startTimer(9)">Start</button>
+    <button id="zone9-cancel" style="display:none;" onclick="cancelTimer(9)">Cancel</button>
+    <span id="zone9-countdown"></span><br>
+</div> 
+<div id="rainDelayControls">
+  <label for="rainDelay">Rain Delay:</label>
+  <select id="rainDelay">
+    <option value="0">None</option>
+    <option value="1">1 Day</option>
+    <option value="2">2 Days</option>
+    <option value="3">3 Days</option>
+    <option value="4">4 Days</option>
+    <option value="5">5 Days</option>
+  </select>
+  <button onclick="confirmRainDelay()">OK</button>
+  <span id="rainDelayStatus" style="margin-left:10px; color:lime;"></span>
 </div>
+<div>
 <button type="button" onclick="window.location.href='/scheduler'">Scheduler</button>
+</div>
 <div>
 <button class="logs-button" onclick="window.location.href='/logs-page'">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 2h14a2 2 0 012 2v16a2 2 0 01-2 2H3a2 2 0 01-2-2V4a2 2 0 012-2zm0 2v16h14V4H3zm2 2h2v12H5V6zm4 0h2v12H9V6zm4 0h2v12h-2V6z"/></svg>
 </button>
+</div>
 <button type="button" onclick="window.location.href='/settings'">Settings</button>
-
+</div>
+<div>
 <button_red type="button_red" onclick="restartDevice()">Restart Device</button_red>
 </div>
 <script>
@@ -191,14 +257,14 @@ function updateSwitches() {
     .catch(error => console.error('Error fetching relay states:', error));
 }
 
-// Call updateSwitches every 500 milliseconds
+// Call updateSwitches every 2 seconds
 setInterval(updateSwitches, 2000);
 
 function toggleRelay(element, pin) {
     const state = element.checked ? 'on' : 'off';
     fetch(`/relay/${pin}/${state}`)
-    .then(response => response.text())
-    .then(data => console.log(data));
+        .then(response => response.text())
+        .then(data => console.log(data));
 }
 
 function restartDevice() {
@@ -207,9 +273,117 @@ function restartDevice() {
     .then(data => console.log(data))
     .catch(error => console.error('Error restarting device:', error));
 }
+
+function startTimer(zone) {
+    const minutes = parseInt(document.getElementById(`zone${zone}-timer`).value);
+    if (isNaN(minutes) || minutes <= 0) {
+        alert("Enter valid number of minutes");
+        return;
+    }
+    console.log(`Start button clicked for zone ${zone} with ${minutes} minutes`);
+    fetch(`/relay-timer/${zone}/${minutes}`)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("Timer failed to start");
+            }
+            document.getElementById(`zone${zone}-cancel`).style.display = "inline-block";
+            updateCountdown(zone);
+        })
+        .catch(err => {
+            console.error("Start timer fetch failed:", err);
+            alert("Failed to start timer");
+        });
+}
+
+function cancelTimer(zone) {
+    fetch(`/cancel-timer/${zone}`)
+        .then(() => {
+            document.getElementById(`zone${zone}-countdown`).innerText = "";
+            document.getElementById(`zone${zone}-cancel`).style.display = "none";
+        });
+}
+
+function updateCountdown(zone) {
+    fetch('/timer-status')
+        .then(res => res.json())
+        .then(data => {
+            const countdownEl = document.getElementById(`zone${zone}-countdown`);
+            const cancelBtn = document.getElementById(`zone${zone}-cancel`);
+
+            if (data.hasOwnProperty(zone)) {
+                const seconds = data[zone];
+                if (seconds > 0) {
+                    const min = Math.floor(seconds / 60);
+                    const sec = seconds % 60;
+                    countdownEl.innerText = `${min}:${sec.toString().padStart(2, '0')}`;
+                    setTimeout(() => updateCountdown(zone), 1000);
+                } else {
+                    countdownEl.innerText = "";
+                    cancelBtn.style.display = "none";
+                }
+            } else {
+                countdownEl.innerText = "";
+                cancelBtn.style.display = "none";
+            }
+        })
+        .catch(error => {
+            console.error('Timer update failed:', error);
+        });
+}
+
+function resumeTimers() {
+    fetch('/timer-status')
+        .then(res => res.json())
+        .then(data => {
+            Object.entries(data).forEach(([zone, seconds]) => {
+                const zoneNum = parseInt(zone);
+                document.getElementById(`zone${zoneNum}-cancel`).style.display = "inline-block";
+                updateCountdown(zoneNum);
+            });
+        })
+        .catch(err => console.error("Failed to resume timers:", err));
+}
+
+function confirmRainDelay() {
+    const days = parseInt(document.getElementById("rainDelay").value);
+    fetch(`/set-rain-delay/${days}`)
+        .then(res => res.text())
+        .then(data => {
+            console.log(data);
+            updateRainDelayStatus();
+        })
+        .catch(err => alert("Failed to set rain delay."));
+}
+
+function updateRainDelayStatus() {
+    fetch('/get-rain-delay')
+        .then(res => res.json())
+        .then(data => {
+            const days = data.days_remaining;
+            const statusEl = document.getElementById("rainDelayStatus");
+
+            if (days > 0) {
+                statusEl.innerText = `Rain delay active (${days} day${days > 1 ? 's' : ''} remaining)`;
+                statusEl.style.color = "lime";
+            } else {
+                statusEl.innerText = "";
+            }
+        })
+        .catch(err => {
+            console.error("Failed to update rain delay status:", err);
+        });
+}
+
+window.addEventListener("load", () => {
+    resumeTimers();
+    updateRainDelayStatus();
+});
+
+
+
+
 </script>
 </body>
 </html>
-
 
 
