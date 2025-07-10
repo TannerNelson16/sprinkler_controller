@@ -2,7 +2,7 @@
 1;"C4";"C_0805_2012Metric";1;"10uF";;;
 2;"U1";"esp32_devkit_v1";1;"ESP32_DevKit_V1_DOIT";;;
 3;"C3,C9,C6";"C_0805_2012Metric";3;"100nF";;;
-4;"D3,D9,D7,D4,D8,D6,D12,D11,D10,D2,D5";"LED_0402_1005Metric";11;"LED";;;
+4;"D3,D9,D7,D4,D8,D6,D12,D11,D10,D5";"LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder";10;"LED";;;
 5;"U2,U11,U10,U7,U4,U9,U6,U5,U8,U3";"OR-M4XXA";10;"~";;;
 6;"C5";"C_0805_2012Metric";1;"C";;;
 7;"SW1";"PinHeader_1x02_P2.54mm_Vertical";1;"SW_SPST";;;
@@ -13,8 +13,9 @@
 12;"RN2,RN1";"SOIC127P762X240-16N";2;"4816P-T02-681LF";;;
 13;"R3";"R_0805_2012Metric";1;"1k";;;
 14;"L1";"L_Vishay_IHLP-5050";1;"15uH";;;
-15;"U12";"TSOT23-6-A_TPK";1;"TPP362081-T6TR";;;
-16;"R2";"R_0805_2012Metric";1;"49.9";;;
-17;"C1,C2";"CP_Radial_D16.0mm_P7.50mm";2;"1000uF";;;
-18;"R1";"R_0805_2012Metric";1;"0";;;
-19;"J1";"TerminalBlock_MetzConnect_Type094_RT03502HBLU_1x02_P5.00mm_Horizontal";1;"Screw_Terminal_01x02";;;
+15;"D2";"LED_0805_2012Metric";1;"LED";;;
+16;"U12";"TSOT23-6-A_TPK";1;"TPP362081-T6TR";;;
+17;"R2";"R_0805_2012Metric";1;"49.9";;;
+18;"C1,C2";"PCAP_12_5x25-THRU-ELECT_NCA";2;"1000uF";;;
+19;"R1";"R_0805_2012Metric";1;"0";;;
+20;"J1";"TerminalBlock_MetzConnect_Type094_RT03502HBLU_1x02_P5.00mm_Horizontal";1;"Screw_Terminal_01x02";;;

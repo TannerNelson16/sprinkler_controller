@@ -404,7 +404,7 @@ def timer_status(request):
         for pin in expired:
             del timers[pin]
 
-        log_message(f"Timer status response: {status}")
+        #log_message(f"Timer status response: {status}")
         return ujson.dumps(status), {'Content-Type': 'application/json'}
 
     except Exception as e:
