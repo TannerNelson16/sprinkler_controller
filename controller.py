@@ -53,8 +53,8 @@ def load_settings():
 config = load_settings()
 
 
-SSID = 'MegaPixel' #config['ssid']
-PASSWORD = 'Tf2241994!' #config['wifi_password']
+SSID = config['ssid']
+PASSWORD = config['wifi_password']
 MQTT_BROKER = config['mqtt_server']
 MQTT_USER = config['mqtt_username']
 MQTT_PASSWORD = config['mqtt_password']
